@@ -1,0 +1,91 @@
+<!doctype html>
+<div class="card" id="reports-tab">
+<h5>Reports</h5>
+<p class="small">Generate attendance and KPI reports. (See backend-integration.md for endpoints.)</p>
+</div>
+</div>
+<div class="col-md-4">
+<div class="card">
+<h6>Announcements</h6>
+<ul id="annList" class="list-unstyled mb-0 small"></ul>
+<div class="mt-3">
+<input id="annInput" placeholder="Write announcement..." class="form-control form-control-sm" />
+<div class="d-flex justify-content-end mt-2"><button id="postAnn" class="btn btn-sm btn-primary">Post</button></div>
+</div>
+</div>
+</div>
+</div>
+
+
+</div>
+
+
+<!-- Add / Edit Teacher Modal -->
+<div class="modal fade" id="teacherModal" tabindex="-1" aria-hidden="true">
+<div class="modal-dialog modal-lg">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title" id="teacherModalTitle">Add Teacher</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body">
+<form id="teacherForm">
+<input type="hidden" id="teacherId">
+<div class="row g-3">
+<div class="col-md-6"><label class="form-label small">Full name</label><input id="tName" class="form-control" required></div>
+<div class="col-md-6"><label class="form-label small">Email</label><input id="tEmail" class="form-control" type="email" required></div>
+<div class="col-md-6"><label class="form-label small">Department</label><input id="tDept" class="form-control"></div>
+<div class="col-md-6"><label class="form-label small">Status</label>
+<select id="tStatus" class="form-select"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+</div>
+<div class="col-12"><label class="form-label small">Notes</label><textarea id="tNotes" class="form-control" rows="3"></textarea></div>
+</div>
+</form>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+<button type="button" class="btn btn-primary" id="saveTeacher">Save</button>
+</div>
+</div>
+</div>
+</div>
+
+
+<script>
+// --- Lightweight front-end logic (demo) ---
+const STORAGE_KEY = 'ksis_teachers_v1';
+let teachers = [];
+let announcements = [];
+
+
+// Utilities
+const $ = sel => document.querySelector(sel);
+const qs = sel => document.querySelectorAll(sel);
+
+
+function loadFromStorage(){
+try{ teachers = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }catch(e){teachers=[]}
+}
+function saveToStorage(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(teachers)); renderTeachers(); updateStats(); }
+
+
+function renderTeachers(){
+const tbody = document.querySelector('#teachersTable tbody'); tbody.innerHTML='';
+teachers.forEach(t=>{
+const tr = document.createElement('tr');
+tr.innerHTML = `<td>${escapeHtml(t.name)}</td><td>${escapeHtml(t.email)}</td><td>${escapeHtml(t.department||'—')}</td><td>${t.status}</td><td class="actions"><i class="fa-solid fa-pen-to-square text-primary" data-id="${t.id}" onclick="openEdit(this)"></i><i class="fa-solid fa-trash text-danger" data-id="${t.id}" onclick="removeTeacher(this)"></i></td>`;
+tbody.appendChild(tr);
+})
+}
+
+
+function escapeHtml(s){return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
+
+
+function updateStats(){ $('#statTeachers').textContent = teachers.length; $('#statDepartments').textContent = new Set(teachers.map(t=>t.department).filter(Boolean)).size; $('#statPending').textContent = teachers.filter(t=>t.status==='pending').length; $('#statKPI').textContent = (teachers.length? (Math.random()*1+4).toFixed(1):'—'); }
+
+
+// CRUD actions
+function openAdd(){ $('#teacherModalTitle').textContent='Add Teacher'; $('#teacherId').value=''; $('#tName').value=''; $('#tEmail').value=''; $('#tDept').value=''; $('#tStatus').value='active'; $('#tNotes').value=''; new bootstrap.Modal($('#teacherModal')).show(); }
+function openEdit(el){ const id=el.getAttribute('data-id'); const t=teachers.find(x=>x.id===id); if(!t) return; $('#teacherModalTitle').textContent='Edit Teacher'; $('#teacherId').value=t.id; $('#tName').value=t.name; $('#tEmail').value=t.email; $('#tDept').value=t.department; $('#tStatus').value=t.status; $('#tNotes').value=t.notes; new bootstrap.Modal($('#teacherModal')).show(); }
+function removeTeacher(el){ if(!confirm('Delete teacher?')) return; const id=el.getAttribute('data-id'); teachers = teachers.fi

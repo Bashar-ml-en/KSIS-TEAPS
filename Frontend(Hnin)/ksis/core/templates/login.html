@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | KSIS Teacher Performance System</title>
+
+  <!-- Bootstrap & Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      height: 100vh;
+      margin: 0;
+      background: url("../static/images/aiuis-bg.jpg") no-repeat center center/cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(10px) brightness(0.9);
+      background: rgba(255,255,255,0.15);
+      z-index: 0;
+    }
+    .container-box {
+      position: relative;
+      z-index: 1;
+      width: 950px;
+      height: 650px;
+      border-radius: 25px;
+      overflow: hidden;
+      display: flex;
+      box-shadow: 0 0 30px rgba(0,0,0,0.2);
+      border: 2px solid rgba(9, 34, 74, 0.5);
+      background: rgba(255,255,255,0.85);
+      animation: glowBorder 3s ease-in-out infinite alternate;
+    }
+    @keyframes glowBorder {
+      0% { box-shadow: 0 0 15px rgba(59,130,246,0.5), 0 0 30px rgba(59,130,246,0.3), 0 0 60px rgba(168,85,247,0.2); }
+      50% { box-shadow: 0 0 25px rgba(59,130,246,0.7), 0 0 50px rgba(59,130,246,0.4), 0 0 80px rgba(168,85,247,0.25); }
+      100% { box-shadow: 0 0 15px rgba(59,130,246,0.5), 0 0 30px rgba(59,130,246,0.3), 0 0 60px rgba(168,85,247,0.2); }
+    }
+    .form-container { width: 50%; padding: 60px 50px; transition: all 0.8s ease; position: absolute; top: 0; }
+    .form-container.login { left: 0; opacity: 1; }
+    .form-container.register { right: 0; opacity: 0; }
+    h3 { font-weight: 600; color: #153957; margin-bottom: 10px; }
+    .form-control { border-radius: 12px; border: 1.5px solid #c9d5f5; padding: 12px; font-size: 0.95rem; margin-bottom: 15px; transition: all 0.3s ease; }
+    .form-control:focus { border-color: #153957; box-shadow: 0 0 0 3px rgba(0,120,215,0.15); }
+    .btn-login { width: 100%; background-color: #153957; border: none; color: #fff; border-radius: 12px; padding: 12px; font-weight: 500; transition: background 0.3s ease; }
+    .btn-login:hover { background-color: #153957; }
+    .toggle-link { text-align: center; color: #555; margin-top: 15px; }
+    .toggle-link a { color: #0078d7; text-decoration: none; font-weight: 500; }
+    .toggle-link a:hover { text-decoration: underline; }
+    .illustration { width: 50%; display: flex; align-items: center; justify-content: center; position: absolute; top: 0; right: 0; height: 100%; transition: all 0.8s ease; }
+    .illustration img { width: 80%; transition: transform 0.8s ease; }
+    .container-box.active .form-container.login { transform: translateX(-100%); opacity: 0; }
+    .container-box.active .form-container.register { transform: translateX(100%); opacity: 1; position: relative; }
+    .container-box.active .illustration { right: auto; left: 0; }
+    .container-box.active .illustration img { transform: translateX(0); }
+  
+
+    .school-logo {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  margin: 0 auto 10px auto;
+  box-shadow: 0 0 15px rgba(59,130,246,0.4);
+  border: 2px solid rgba(59,130,246,0.6);
+}
+
+  </style>
+</head>
+<body>
+  <div class="container-box" id="box">
+    <!-- Login Form -->
+    <div class="form-container login">
+    <div class="text-center mb-4"><img src="../static/images/aiuis_logo.png" alt="School Logo" class="school-logo mb-2">
+      <h3>Welcome Back!</h3>
+      <p>Sign in to continue</p> </div>
+      <input type="email" id="loginEmail" class="form-control" placeholder="Email">
+      <input type="password" id="loginPassword" class="form-control" placeholder="Password">
+      <select id="loginRole" class="form-control">
+        <option value="">Select Role</option>
+        <option value="admin">Admin</option>
+        <option value="teacher">Teacher</option>
+        <option value="principal">Principal</option>
+      </select>
+      <p id="loginMessage" style="color:red;"></p>
+      <button id="loginBtn" class="btn-login mt-2">Login</button>
+      <div class="toggle-link">Don’t have an account? <a href="#" id="showRegister">Register now</a></div>
+    </div>
+
+    <!-- Register Form -->
+    <div class="form-container register">
+    <div class="text-center mb-4"><img src="../static/images/aiuis_logo.png" alt="School Logo" class="school-logo mb-2">
+      <h3>Create Account</h3>
+      <p>Join the KSIS Teacher Performance System</p></div>
+      <input type="text" id="regFullName" class="form-control" placeholder="Full Name">
+      <input type="email" id="regEmail" class="form-control" placeholder="Email">
+      <input type="password" id="regPassword" class="form-control" placeholder="Password">
+      <select id="regRoleRegister" class="form-control">
+        <option value="">Select Role</option>
+        <option value="admin">Admin</option>
+        <option value="teacher">Teacher</option>
+        <option value="principal">Principal</option>
+      </select>
+      <p id="registerMessage" style="color:red;"></p>
+      <button id="registerBtn" class="btn-login">Register</button>
+      <div class="toggle-link">Already have an account? <a href="#" id="showLogin">Login</a></div>
+    </div>
+
+    <!-- Illustration -->
+    <div class="illustration">
+      <img src="../static/images/aiuis-login-illustration.png" alt="Illustration">
+    </div>
+  </div>
+
+  <script>
+    const box = document.getElementById("box");
+
+    // Toggle panels
+    document.getElementById("showRegister").addEventListener("click", () => box.classList.add("active"));
+    document.getElementById("showLogin").addEventListener("click", () => box.classList.remove("active"));
+
+    // ---------------- LOGIN ----------------
+    async function loginUser() {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      const role = document.getElementById("loginRole").value.trim();
+      const messageEl = document.getElementById("loginMessage");
+
+      if (!email || !password || !role) {
+        messageEl.textContent = "Please fill all fields and select a role.";
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/login/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, role }),
+          credentials: "include"
+        });
+        const data = await response.json();
+        console.log("Login API Response:", data);
+
+        if (data.status === "success") {
+          alert("Login successful!");
+          if (data.role === "admin") window.location.href = "/hr_dashboard/";
+          else if (data.role === "principal") window.location.href = "/principal_dashboard/";
+          else window.location.href = "/teacher_dashboard/";
+        } else {
+          messageEl.textContent = data.message || "Login failed.";
+        }
+      } catch (err) {
+        console.error(err);
+        messageEl.textContent = "An error occurred. Please try again later.";
+      }
+    }
+
+    // ---------------- REGISTER ----------------
+    async function registerUser() {
+      const fullName = document.getElementById("regFullName").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const password = document.getElementById("regPassword").value.trim();
+      const role = document.getElementById("regRoleRegister").value.trim();
+      const messageEl = document.getElementById("registerMessage");
+
+      if (!fullName || !email || !password || !role) {
+        messageEl.textContent = "Please fill all fields and select a role.";
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/register/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ full_name: fullName, email, password, role }),
+          credentials: "include"
+        });
+
+        const data = await response.json();
+        console.log("Register API Response:", data);
+
+        if (data.status === "success") {
+          alert("Registration successful! Please login.");
+
+          // Clear the form
+          document.getElementById("regFullName").value = "";
+          document.getElementById("regEmail").value = "";
+          document.getElementById("regPassword").value = "";
+          document.getElementById("regRoleRegister").value = "";
+          messageEl.textContent = "";
+
+          // Switch back to login panel
+          box.classList.remove("active");
+          window.location.href = "/login/";
+        } else {
+          messageEl.textContent = data.message || "Registration failed.";
+        }
+      } catch (err) {
+        console.error(err);
+        messageEl.textContent = "An error occurred. Please try again later.";
+      }
+    }
+
+    // Attach listeners
+    document.getElementById("loginBtn").addEventListener("click", loginUser);
+    document.getElementById("registerBtn").addEventListener("click", registerUser);
+  </script>
+</body>
+</html>
