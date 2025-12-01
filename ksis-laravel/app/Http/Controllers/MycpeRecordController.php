@@ -4,10 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\MycpeRecord;
 use App\Models\Teacher;
+use App\Services\EvidenceService\CPEComplianceChecker;
 use Illuminate\Http\Request;
 
 class MycpeRecordController extends Controller
 {
+    protected $complianceChecker;
+
+    public function __construct()
+    {
+        $this->complianceChecker = new CPEComplianceChecker();
+    }
+
     /**
      * Display a listing of MyCPE records
      */
@@ -19,7 +27,6 @@ class MycpeRecordController extends Controller
 
         // Role-based filtering
         if ($user->role === 'teacher') {
-            // Teachers can only see their own records
             $teacher = Teacher::where('user_id', $user->id)->first();
             if ($teacher) {
                 $query->where('teacher_id', $teacher->id);
@@ -33,9 +40,9 @@ class MycpeRecordController extends Controller
             $query->where('teacher_id', $request->teacher_id);
         }
 
-        // Filter by activity type
-        if ($request->has('activity_type')) {
-            $query->where('activity_type', $request->activity_type);
+        // Filter by year
+        if ($request->has('year')) {
+            $query->whereYear('date_attended', $request->year);
         }
 
         // Filter by status
@@ -43,12 +50,20 @@ class MycpeRecordController extends Controller
             $query->where('status', $request->status);
         }
 
-        // Filter by year
-        if ($request->has('year')) {
-            $query->whereYear('activity_date', $request->year);
-        }
+        $records = $query->latest('date_attended')->paginate($request->get('per_page', 15));
 
-        $records = $query->latest('activity_date')->paginate($request->get('per_page', 15));
+        // Add CPE summary if filtering by teacher and year
+        if ($request->has('teacher_id') && $request->has('year')) {
+            $compliance = $this->complianceChecker->checkCompliance(
+                $request->teacher_id,
+                $request->year
+            );
+            
+            return response()->json([
+                'records' => $records,
+                'compliance' => $compliance,
+            ]);
+        }
 
         return response()->json($records);
     }
@@ -60,23 +75,26 @@ class MycpeRecordController extends Controller
     {
         $validated = $request->validate([
             'teacher_id' => 'required|exists:teachers,id',
-            'activity_type' => 'required|in:Workshop,Conference,Training,Webinar,Course,Publication,Research,Other',
-            'activity_title' => 'required|string|max:255',
-            'activity_description' => 'nullable|string',
-            'activity_date' => 'required|date',
-            'duration_hours' => 'nullable|integer|min:0',
+            'course_title' => 'required|string|max:255',
+            'date_attended' => 'required|date',
+            'duration_hours' => 'required|numeric|min:0',
+            'location' => 'nullable|string|max:255',
             'provider' => 'nullable|string|max:255',
-            'certificate_url' => 'nullable|url|max:500',
-            'evidence_documents' => 'nullable|array',
+            'description' => 'nullable|string',
+            'certificate_path' => 'nullable|string',
         ]);
 
+        // CPE points are automatically calculated by the Observer
+        // 1 Hour = 1 CPE Point
+        
         $record = MycpeRecord::create(array_merge($validated, [
-            'status' => 'pending',
+            'status' => 'pending', // Requires approval
         ]));
 
         return response()->json([
             'message' => 'MyCPE record created successfully',
             'record' => $record->load('teacher'),
+            'note' => 'CPE points automatically calculated: ' . $record->cpe_points . ' points',
         ], 201);
     }
 
@@ -86,7 +104,6 @@ class MycpeRecordController extends Controller
     public function show($id)
     {
         $record = MycpeRecord::with('teacher')->findOrFail($id);
-
         return response()->json($record);
     }
 
@@ -97,29 +114,29 @@ class MycpeRecordController extends Controller
     {
         $record = MycpeRecord::findOrFail($id);
 
-        // Only allow updates if not approved
+        // Can only update if not approved
         if ($record->status === 'approved') {
             return response()->json([
-                'message' => 'Cannot update approved records',
-            ], 422);
+                'message' => 'Cannot update approved CPE records',
+            ], 403);
         }
 
         $validated = $request->validate([
-            'activity_type' => 'sometimes|in:Workshop,Conference,Training,Webinar,Course,Publication,Research,Other',
-            'activity_title' => 'sometimes|string|max:255',
-            'activity_description' => 'nullable|string',
-            'activity_date' => 'sometimes|date',
-            'duration_hours' => 'nullable|integer|min:0',
+            'course_title' => 'sometimes|string|max:255',
+            'date_attended' => 'sometimes|date',
+            'duration_hours' => 'sometimes|numeric|min:0',
+            'location' => 'nullable|string|max:255',
             'provider' => 'nullable|string|max:255',
-            'certificate_url' => 'nullable|url|max:500',
-            'evidence_documents' => 'nullable|array',
+            'description' => 'nullable|string',
+            'certificate_path' => 'nullable|string',
         ]);
 
         $record->update($validated);
 
         return response()->json([
             'message' => 'MyCPE record updated successfully',
-            'record' => $record->load('teacher'),
+            'record' => $record->fresh()->load('teacher'),
+            'note' => 'CPE points recalculated: ' . $record->cpe_points . ' points',
         ]);
     }
 
@@ -129,12 +146,12 @@ class MycpeRecordController extends Controller
     public function destroy($id)
     {
         $record = MycpeRecord::findOrFail($id);
-        
-        // Only allow deletion if pending
-        if ($record->status !== 'pending') {
+
+        // Can only delete if not approved
+        if ($record->status === 'approved') {
             return response()->json([
-                'message' => 'Can only delete pending records',
-            ], 422);
+                'message' => 'Cannot delete approved CPE records',
+            ], 403);
         }
 
         $record->delete();
@@ -145,32 +162,116 @@ class MycpeRecordController extends Controller
     }
 
     /**
-     * Approve or reject MyCPE record
+     * Approve a MyCPE record
      */
-    public function approve(Request $request, $id)
+    public function approve($id)
     {
         $record = MycpeRecord::findOrFail($id);
 
-        if ($record->status !== 'pending') {
+        if ($record->status === 'approved') {
             return response()->json([
-                'message' => 'Only pending records can be approved or rejected',
+                'message' => 'Record is already approved',
             ], 422);
         }
 
-        $validated = $request->validate([
-            'status' => 'required|in:approved,rejected',
-            'approval_notes' => 'nullable|string',
-        ]);
-
-        $record->update([
-            'status' => $validated['status'],
-            'approval_notes' => $validated['approval_notes'] ?? null,
-            'approved_date' => $validated['status'] === 'approved' ? now() : null,
-        ]);
+        $record->update(['status' => 'approved']);
 
         return response()->json([
-            'message' => 'MyCPE record ' . $validated['status'] . ' successfully',
-            'record' => $record->load('teacher'),
+            'message' => 'MyCPE record approved successfully',
+            'record' => $record->fresh()->load('teacher'),
         ]);
     }
+
+    /**
+     * Get CPE compliance summary for a teacher
+     */
+    public function getCompliance(Request $request)
+    {
+        $validated = $request->validate([
+            'teacher_id' => 'required|exists:teachers,id',
+            'year' => 'required|integer|min:2000|max:2100',
+        ]);
+
+        $compliance = $this->complianceChecker->checkCompliance(
+            $validated['teacher_id'],
+            $validated['year']
+        );
+
+        $summary = $this->complianceChecker->getCPESummary(
+            $validated['teacher_id'],
+            $validated['year']
+        );
+
+        return response()->json([
+            'compliance' => $compliance,
+            'summary' => $summary,
+        ]);
+    }
+
+
+    /**
+     * Get bulk CPE compliance report
+     */
+    public function bulkCompliance(Request $request)
+    {
+        $validated = $request->validate([
+            'year' => 'required|integer|min:2000|max:2100',
+            'department_id' => 'nullable|exists:departments,id',
+        ]);
+        
+        $principalId = null;
+        $user = $request->user();
+        
+        // If principal, only show their departments
+        if ($user->role === 'principal') {
+            $principal = \App\Models\Principal::where('user_id', $user->id)->first();
+            $principalId = $principal?->id;
+        }
+        
+        $complianceService = new \App\Services\ReportingService\CPEComplianceService();
+        $report = $complianceService->getBulkComplianceReport(
+            $validated['year'],
+            $validated['department_id'] ?? null,
+            $principalId
+        );
+        
+        return response()->json($report);
+    }
+    
+    /**
+     * Get CPE compliance by department
+     */
+    public function complianceByDepartment(Request $request)
+    {
+        $year = $request->get('year', now()->year);
+        
+        $principalId = null;
+        $user = $request->user();
+        
+        // If principal, only show their departments
+        if ($user->role === 'principal') {
+            $principal = \App\Models\Principal::where('user_id', $user->id)->first();
+            $principalId = $principal?->id;
+        }
+        
+        $complianceService = new \App\Services\ReportingService\CPEComplianceService();
+        $report = $complianceService->getComplianceByDepartment($year, $principalId);
+        
+        return response()->json($report);
+    }
+    
+    /**
+     * Get individual teacher CPE details  
+     */
+    public function teacherCPEDetails(Request $request, $teacherId)
+    {
+        $year = $request->get('year', now()->year);
+        
+        $complianceService = new \App\Services\ReportingService\CPEComplianceService();
+        $details = $complianceService->getTeacherCPEDetails($teacherId, $year);
+        
+        return response()->json($details);
+    }
+
 }
+

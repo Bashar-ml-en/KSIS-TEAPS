@@ -46,6 +46,19 @@ class AnnualAppraisal extends Model
         'hr_overall_comment',
         'hr_career_advancement',
         'status',
+        // Calculated scores
+        'part_2_score',
+        'part_3_score',
+        'cpe_score',
+        'final_weighted_score',
+        'calculated_at',
+        // Workflow control
+        'is_locked',
+        'completed_at',
+        // Override tracking
+        'original_final_score',
+        'score_override_justification',
+        'score_overridden_at',
     ];
 
     protected $casts = [
@@ -70,6 +83,15 @@ class AnnualAppraisal extends Model
         'networking_communication_score' => 'integer',
         'core_values_score' => 'integer',
         'attendance_score' => 'integer',
+        'part_2_score' => 'decimal:2',
+        'part_3_score' => 'decimal:2',
+        'cpe_score' => 'decimal:2',
+        'final_weighted_score' => 'decimal:2',
+        'original_final_score' => 'decimal:2',
+        'calculated_at' => 'datetime',
+        'completed_at' => 'datetime',
+        'score_overridden_at' => 'datetime',
+        'is_locked' => 'boolean',
     ];
 
     // Relationships

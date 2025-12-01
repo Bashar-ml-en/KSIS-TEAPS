@@ -8,6 +8,13 @@ use Illuminate\Http\Request;
 
 class AnnualAppraisalController extends Controller
 {
+    protected $rubricValidator;
+
+    public function __construct(\App\Services\ScoringService\RubricValidator $rubricValidator)
+    {
+        $this->rubricValidator = $rubricValidator;
+    }
+
     /**
      * Display a listing of annual appraisals
      */
@@ -91,6 +98,17 @@ class AnnualAppraisalController extends Controller
             return response()->json([
                 'message' => 'Appraisal already exists for this teacher and year',
                 'appraisal' => $existing,
+            ], 422);
+        }
+
+        // Create temporary instance for validation
+        $tempAppraisal = new AnnualAppraisal($validated);
+        $errors = $this->rubricValidator->getValidationErrors($tempAppraisal);
+
+        if (!empty($errors)) {
+            return response()->json([
+                'message' => 'Validation failed against rubric',
+                'errors' => $errors,
             ], 422);
         }
 
@@ -262,4 +280,148 @@ class AnnualAppraisalController extends Controller
             'appraisal' => $appraisal->load('teacher'),
         ]);
     }
+
+
+    /**
+     * Principal returns appraisal for revision
+     */
+    public function returnForRevision(Request $request, $id)
+    {
+        $appraisal = AnnualAppraisal::findOrFail($id);
+
+        // Only allowed from pending_principal state
+        if ($appraisal->status !== 'pending_principal') {
+            return response()->json([
+                'message' => 'Can only return for revision from pending_principal state',
+                'current_status' => $appraisal->status,
+            ], 422);
+        }
+
+        $validated = $request->validate([
+            'revision_reason' => 'required|string|min:10',
+            'revision_comments' => 'nullable|string',
+        ]);
+
+        try {
+            // Store revision reason in appraisal
+            $appraisal->update([
+                'revision_reason' => $validated['revision_reason'],
+                'revision_comments' => $validated['revision_comments'] ?? null,
+                'status' => 'revision_required',
+            ]);
+
+            // Log in status history
+            \App\Models\AppraisalStatusHistory::create([
+                'annual_appraisal_id' => $appraisal->id,
+                'from_status' => 'pending_principal',
+                'to_status' => 'revision_required',
+                'actor_id' => $request->user()->id,
+                'actor_role' => $request->user()->role,
+                'comment' => $validated['revision_reason'],
+                'metadata' => json_encode($validated),
+                'transitioned_at' => now(),
+            ]);
+
+            return response()->json([
+                'message' => 'Appraisal returned for revision successfully',
+                'appraisal' => $appraisal->fresh()->load('teacher'),
+                'revision_reason' => $validated['revision_reason'],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to return appraisal for revision',
+                'error' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    /**
+     * Principal views dispute dashboard - get all disputed appraisals
+     */
+    public function disputeDashboard(Request $request)
+    {
+        $query = \App\Models\ReevaluationRequest::with(['teacher', 'evaluation', 'principal'])
+            ->where('status', 'pending');
+
+        // Filter by teacher if specified
+        if ($request->has('teacher_id')) {
+            $query->where('teacher_id', $request->teacher_id);
+        }
+
+        // Filter by department if specified
+        if ($request->has('department_id')) {
+            $query->whereHas('teacher', function($q) use ($request) {
+                $q->where('department_id', $request->department_id);
+            });
+        }
+
+        $disputes = $query->latest()->paginate($request->get('per_page', 15));
+
+        return response()->json([
+            'total_pending_disputes' => $disputes->total(),
+            'disputes' => $disputes,
+        ]);
+    }
+
+    /**
+     * Principal resolves a dispute - uphold or revise score
+     */
+    public function resolveDispute(Request $request, $id)
+    {
+        $dispute = \App\Models\ReevaluationRequest::findOrFail($id);
+
+        if ($dispute->status !== 'pending') {
+            return response()->json([
+                'message' => 'Only pending disputes can be resolved',
+                'current_status' => $dispute->status,
+            ], 422);
+        }
+
+        $validated = $request->validate([
+            'resolution' => 'required|in:uphold,revise',
+            'resolution_comment' => 'required|string|min:10',
+            'revised_score' => 'required_if:resolution,revise|nullable|numeric|min:0|max:100',
+        ]);
+
+        try {
+            \DB::transaction(function () use ($dispute, $validated, $request) {
+                // Update dispute record
+                $dispute->update([
+                    'status' => $validated['resolution'] === 'uphold' ? 'rejected' : 'approved',
+                    'review_comment' => $validated['resolution_comment'],
+                    'principal_id' => \App\Models\Principal::where('user_id', $request->user()->id)->value('id'),
+                    'reviewed_date' => now(),
+                ]);
+
+                // If revising score, update the associated appraisal
+                if ($validated['resolution'] === 'revise' && $dispute->evaluation_id) {
+                    $evaluation = \App\Models\Evaluation::find($dispute->evaluation_id);
+                    if ($evaluation && $evaluation->annual_appraisal_id) {
+                        $appraisal = AnnualAppraisal::find($evaluation->annual_appraisal_id);
+                        if ($appraisal) {
+                            $appraisal->update([
+                                'original_final_score' => $appraisal->final_weighted_score,
+                                'final_weighted_score' => $validated['revised_score'],
+                                'score_override_justification' => 'Dispute resolution: ' . $validated['resolution_comment'],
+                                'score_overridden_at' => now(),
+                            ]);
+                        }
+                    }
+                }
+            });
+
+            return response()->json([
+                'message' => 'Dispute resolved successfully',
+                'resolution' => $validated['resolution'],
+                'dispute' => $dispute->fresh()->load(['teacher', 'evaluation', 'principal']),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to resolve dispute',
+                'error' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
 }
+

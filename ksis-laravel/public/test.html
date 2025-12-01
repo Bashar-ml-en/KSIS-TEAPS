@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KSIS Backend Tester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-blue-900">KSIS Backend API Tester</h1>
+            <div id="authStatus" class="px-4 py-2 rounded bg-red-100 text-red-800 font-bold">
+                Not Authenticated
+            </div>
+        </div>
+
+        <!-- Login Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-bold mb-4 border-b pb-2">1. Authentication</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="email" id="email" value="admin@ksis.edu.kw" class="border p-2 rounded" placeholder="Email">
+                <input type="password" id="password" value="password" class="border p-2 rounded" placeholder="Password">
+                <button onclick="login()"
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Login</button>
+            </div>
+            <div class="mt-4 flex gap-2">
+                <button onclick="logout()"
+                    class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Logout</button>
+                <button onclick="getProfile()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Get
+                    Profile</button>
+            </div>
+        </div>
+
+        <!-- Endpoints Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-bold mb-4 border-b pb-2">2. Test Endpoints</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button onclick="testEndpoint('GET', '/api/teachers')"
+                    class="bg-indigo-100 text-indigo-800 p-3 rounded hover:bg-indigo-200 font-medium">
+                    Get Teachers
+                </button>
+                <button onclick="testEndpoint('GET', '/api/departments')"
+                    class="bg-indigo-100 text-indigo-800 p-3 rounded hover:bg-indigo-200 font-medium">
+                    Get Departments
+                </button>
+                <button onclick="testEndpoint('GET', '/api/kpis')"
+                    class="bg-indigo-100 text-indigo-800 p-3 rounded hover:bg-indigo-200 font-medium">
+                    Get KPIs
+                </button>
+                <button onclick="testEndpoint('GET', '/api/annual-appraisals')"
+                    class="bg-indigo-100 text-indigo-800 p-3 rounded hover:bg-indigo-200 font-medium">
+                    Get Appraisals
+                </button>
+            </div>
+        </div>
+
+        <!-- Console Output -->
+        <div class="bg-gray-900 text-green-400 p-6 rounded-lg shadow-md font-mono h-96 overflow-auto">
+            <div class="flex justify-between mb-2 text-gray-400 text-sm">
+                <span>Response Console</span>
+                <button onclick="clearConsole()" class="hover:text-white">Clear</button>
+            </div>
+            <pre id="console">Ready to test...</pre>
+        </div>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('auth_token');
+
+        // Configure Axios
+        const api = axios.create({
+            baseURL: 'http://localhost:8888',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+
+        if (token) {
+            updateAuthStatus(true);
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        }
+
+        function log(title, data, isError = false) {
+            const consoleEl = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = isError ? 'text-red-400' : 'text-green-400';
+
+            let content = `\n[${timestamp}] --- ${title} ---\n`;
+            if (typeof data === 'object') {
+                content += JSON.stringify(data, null, 2);
+            } else {
+                content += data;
+            }
+            content += '\n';
+
+            const entry = document.createElement('div');
+            entry.className = isError ? 'text-red-400' : 'text-green-400';
+            entry.innerText = content;
+            consoleEl.prepend(entry);
+        }
+
+        function updateAuthStatus(isAuthenticated) {
+            const el = document.getElementById('authStatus');
+            if (isAuthenticated) {
+                el.textContent = 'Authenticated';
+                el.className = 'px-4 py-2 rounded bg-green-100 text-green-800 font-bold';
+< !DOCTYPE html >
+                    <html lang="en">
+
+                        <head>
+                            <meta charset="UTF-8">
+                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                    <title>KSIS Backend Tester</title>
+                                    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    </head>
+
+    <body class="bg-gray-100 p-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold text-blue-900">KSIS Backend API Tester</h1>
+                <div id="authStatus" class="px-4 py-2 rounded bg-red-100 text-red-800 font-bold">
+                    Not Authenticated
+                </div>
+            </div>
+
+            <!-- Login Section -->
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h2 class="text-xl font-bold mb-4 border-b pb-2">1. Authentication</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="email" id="email" value="admin@ksis.edu.kw" class="border p-2 rounded"
+                        placeholder="Email">
+                    <input type="password" id="password" value="password" class="border p-2 rounded"
+                        placeholder="Password">
+                    <button onclick="login()"
+                        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Login</button>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <button onclick="logout()"
+                        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Logout</button>
+                    <button onclick="getProfile()"
+                        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Get
+                        Profile</button>
+                </div>
+            </div>
+
+            <!-- Endpoints Section -->
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h2 class="text-xl font-bold mb-4 border-b pb-2">2. Test Endpoints</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button onclick="testEndpoint('GET', '/api/teachers')"
+                        class="bg-indigo-100 text-indigo-800 p-3 rounded hover:bg-indigo-200 font-medium">
+                        Get Teachers
+                    </button>
+                    <button onclick="testEndpoint('GET', '/api/departments')"
+                        class="bg-indigo-100 text-indigo-800 p-3 rounded hover:bg-indigo-200 font-medium">
+                        Get Departments
+                    </button>
+                    <button onclick="testEndpoint('GET', '/api/kpis')"
+                        class="bg-indigo-100 text-indigo-800 p-3 rounded hover:bg-indigo-200 font-medium">
+                        Get KPIs
+                    </button>
+                    <button onclick="testEndpoint('GET', '/api/annual-appraisals')"
+                        class="bg-indigo-100 text-indigo-800 p-3 rounded hover:bg-indigo-200 font-medium">
+                        Get Appraisals
+                    </button>
+                </div>
+            </div>
+
+            <!-- Console Output -->
+            <div class="bg-gray-900 text-green-400 p-6 rounded-lg shadow-md font-mono h-96 overflow-auto">
+                <div class="flex justify-between mb-2 text-gray-400 text-sm">
+                    <span>Response Console</span>
+                    <button onclick="clearConsole()" class="hover:text-white">Clear</button>
+                </div>
+                <pre id="console">Ready to test...</pre>
+            </div>
+        </div>
+
+        <script>
+                        let token = localStorage.getItem('auth_token');
+
+                        // Configure Axios
+                        const api = axios.create({
+                            baseURL: 'http://localhost:8888',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+            }
+        });
+
+                        if (token) {
+                            updateAuthStatus(true);
+                        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        }
+
+                        function log(title, data, isError = false) {
+            const consoleEl = document.getElementById('console');
+                        const timestamp = new Date().toLocaleTimeString();
+                        const color = isError ? 'text-red-400' : 'text-green-400';
+
+                        let content = `\n[${timestamp}] --- ${title} ---\n`;
+                        if (typeof data === 'object') {
+                            content += JSON.stringify(data, null, 2);
+            } else {
+                            content += data;
+            }
+                        content += '\n';
+
+                        const entry = document.createElement('div');
+                        entry.className = isError ? 'text-red-400' : 'text-green-400';
+                        entry.innerText = content;
+                        consoleEl.prepend(entry);
+        }
+
+                        async function login() {
+            const email = document.getElementById('email').value;
+                        const password = document.getElementById('password').value;
+
+                        try {
+                            log('Logging in...', { email });
+                        const response = await api.post('/api/login', {email, password});
+
+                        token = response.data.token;
+                        const user = response.data.user;
+
+                        localStorage.setItem('auth_token', token);
+                        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+                        updateAuthStatus(true, user.role);
+                        showDashboard(user);
+                        log('Login Successful!', response.data);
+            } catch (error) {
+                            log('Login Failed', error.response?.data || error.message, true);
+            }
+        }
+
+                        function showDashboard(user) {
+            const dashboardArea = document.createElement('div');
+                        dashboardArea.id = 'roleDashboard';
+                        dashboardArea.className = 'bg-blue-50 p-6 rounded-lg shadow-md mb-6 border-l-4 border-blue-500';
+
+                        let dashboardContent = '';
+                        let icon = '';
+
+                        if (user.role === 'hr_admin') {
+                            icon = '👔';
+                        dashboardContent = `
+                        <h2 class="text-2xl font-bold text-blue-900 mb-2">${icon} HR Admin Dashboard</h2>
+                        <p class="mb-4">Welcome, ${user.name}. You have full access to system configuration and reports.</p>
+                        <div class="flex gap-2">
+                            <button onclick="testEndpoint('GET', '/api/hr-admins')" class="bg-blue-600 text-white px-3 py-1 rounded">Manage HR Staff</button>
+                            <button onclick="testEndpoint('GET', '/api/reports/school')" class="bg-blue-600 text-white px-3 py-1 rounded">School Reports</button>
+                        </div>
+                        `;
+            } else if (user.role === 'principal') {
+                            icon = '🏫';
+                        dashboardContent = `
+                        <h2 class="text-2xl font-bold text-blue-900 mb-2">${icon} Principal Dashboard</h2>
+                        <p class="mb-4">Welcome, ${user.name}. You can manage evaluations and view department performance.</p>
+                        <div class="flex gap-2">
+                            <button onclick="testEndpoint('GET', '/api/evaluations')" class="bg-blue-600 text-white px-3 py-1 rounded">View Evaluations</button>
+                            <button onclick="testEndpoint('GET', '/api/classroom-observations')" class="bg-blue-600 text-white px-3 py-1 rounded">Observations</button>
+                        </div>
+                        `;
+            } else if (user.role === 'teacher') {
+                            icon = '👨‍🏫';
+                        dashboardContent = `
+                        <h2 class="text-2xl font-bold text-blue-900 mb-2">${icon} Teacher Dashboard</h2>
+                        <p class="mb-4">Welcome, ${user.name}. You can view your evaluations and submit CPE records.</p>
+                        <div class="flex gap-2">
+                            <button onclick="testEndpoint('GET', '/api/mycpe-records')" class="bg-blue-600 text-white px-3 py-1 rounded">My CPE Records</button>
+                            <button onclick="testEndpoint('GET', '/api/evaluations')" class="bg-blue-600 text-white px-3 py-1 rounded">My Evaluations</button>
+                        </div>
+                        `;
+            }
+
+                        dashboardArea.innerHTML = dashboardContent;
+
+                        // Insert after login section
+                        const loginSection = document.querySelector('.bg-white.p-6.rounded-lg.shadow-md.mb-6');
+                        if (document.getElementById('roleDashboard')) {
+                            document.getElementById('roleDashboard').remove();
+            }
+                        loginSection.parentNode.insertBefore(dashboardArea, loginSection.nextSibling);
+        }
+
+                        function updateAuthStatus(isAuthenticated, role = '') {
+            const el = document.getElementById('authStatus');
+                        if (isAuthenticated) {
+                            el.textContent = `Authenticated (${role})`;
+                        el.className = 'px-4 py-2 rounded bg-green-100 text-green-800 font-bold';
+            } else {
+                            el.textContent = 'Not Authenticated';
+                        el.className = 'px-4 py-2 rounded bg-red-100 text-red-800 font-bold';
+                        if (document.getElementById('roleDashboard')) {
+                            document.getElementById('roleDashboard').remove();
+                }
+            }
+        }
+
+                        async function logout() {
+            try {
+                            await api.post('/api/logout');
+            } catch (e) { }
+
+                        token = null;
+                        localStorage.removeItem('auth_token');
+                        delete api.defaults.headers.common['Authorization'];
+                        updateAuthStatus(false);
+                        log('Logged out', 'Session cleared');
+        }
+
+                        async function getProfile() {
+            try {
+                const response = await api.get('/api/user');
+                        log('User Profile', response.data);
+            } catch (error) {
+                            log('Get Profile Failed', error.response?.data || error.message, true);
+            }
+        }
+
+                        async function testEndpoint(method, url) {
+            try {
+                            log(`Testing ${method} ${url}...`, 'Request sent');
+                        const response = await api({method, url});
+                        log(`Success: ${url}`, response.data);
+            } catch (error) {
+                            log(`Error: ${url}`, error.response?.data || error.message, true);
+            }
+        }
+
+                        function clearConsole() {
+                            document.getElementById('console').innerHTML = '';
+        }
+        </script>
+    </body>
+
+</html>

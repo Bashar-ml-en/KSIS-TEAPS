@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KSIS TEAPS - API Testing Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .status-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-indicator.online {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        .status-indicator.offline {
+            background: #ef4444;
+        }
+
+        .test-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+            font-weight: normal;
+        }
+
+        .badge.new {
+            background: #10b981;
+        }
+
+        .test-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .test-item h4 {
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .test-item p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .test-item code {
+            background: #1e293b;
+            color: #10b981;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response-box {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .response-box.show {
+            display: block;
+        }
+
+        .success {
+            color: #10b981;
+        }
+
+        .error {
+            color: #ef4444;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .quick-start {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quick-start h3 {
+            margin-bottom: 10px;
+        }
+
+        .quick-start ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #475569;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 KSIS TEAPS API Testing Dashboard v2.0</h1>
+            <p class="subtitle">Test all newly implemented backend features - Scoring Service, CPE Auto-Calculation,
+                Workflow State Machine</p>
+        </div>
+
+        <div class="status-card">
+            <h3>
+                <span class="status-indicator" id="statusIndicator"></span>
+                Backend Status: <span id="statusText">Checking...</span>
+            </h3>
+            <p style="margin-top: 10px; color: #64748b;">API Base URL: <code>http://localhost:8000/api</code></p>
+            <p style="margin-top: 5px; color: #f59e0b;">⚠️ Start Docker first: <code>docker-compose up -d</code> in
+                <code>c:\Backend(KSIS)\ksis-laravel</code></p>
+            <button onclick="checkBackendStatus()" style="margin-top: 10px;">Check Status</button>
+        </div>
+
+        <div class="quick-start">
+            <h3>📋 Quick Start Guide</h3>
+            <ol>
+                <li><strong>Start Docker:</strong> Run <code>docker-compose up -d</code> in
+                    <code>c:\Backend(KSIS)\ksis-laravel</code></li>
+                <li><strong>Run Migrations:</strong> <code>docker-compose exec app php artisan migrate</code></li>
+                <li><strong>Login:</strong> Use the login test below to get your auth token</li>
+                <li><strong>Test Features:</strong> Use the token to test all the new features</li>
+                <li><strong>Verify:</strong> Check response boxes for success confirmations</li>
+            </ol>
+        </div>
+
+        <div class="grid">
+            <!-- Authentication -->
+            <div class="test-section">
+                <h3>🔐 Authentication</h3>
+
+                <div class="test-item">
+                    <h4>Login & Get Token</h4>
+                    <p>Login to get authentication token for API calls</p>
+
+                    <div class="input-group">
+                        <label>Email:</label>
+                        <input type="email" id="loginEmail" value="teacher@example.com" placeholder="user@example.com">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password:</label>
+                        <input type="password" id="loginPassword" value="password" placeholder="password">
+                    </div>
+
+                    <button onclick="testLogin()">Login</button>
+                    <div class="response-box" id="loginResponse"></div>
+                </div>
+            </div>
+
+            <!-- CPE Auto-Calculation -->
+            <div class="test-section">
+                <h3>⚡ CPE Auto-Calculation <span class="badge new">NEW</span></h3>
+
+                <div class="test-item">
+                    <h4>Create CPE Record (1 Hour = 1 Point)</h4>
+                    <p>CPE points calculated automatically from duration</p>
+
+                    <div class="input-group">
+                        <label>Teacher ID:</label>
+                        <input type="number" id="cpeTeacherId" value="1">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Course Title:</label>
+                        <input type="text" id="cpeTitle" value="Test Training Course" placeholder="Course name">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Duration (Hours):</label>
+                        <input type="number" id="cpeDuration" value="8" placeholder="8">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Provider:</label>
+                        <input type="text" id="cpeProvider" value="Test Provider" placeholder="Provider name">
+                    </div>
+
+                    <button onclick="testCPECreation()">Create CPE Record</button>
+                    <div class="response-box" id="cpeResponse"></div>
+                </div>
+
+                <div class="test-item">
+                    <h4>Check CPE Compliance</h4>
+                    <p>Verify if teacher meets 40 CPE points requirement</p>
+
+                    <div class="input-group">
+                        <label>Teacher ID:</label>
+                        <input type="number" id="complianceTeacherId" value="1">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Year:</label>
+                        <input type="number" id="complianceYear" value="2024">
+                    </div>
+
+                    <button onclick="testCPECompliance()">Check Compliance</button>
+                    <div class="response-box" id="complianceResponse"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = '';
+
+        async function checkBackendStatus() {
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+
+            try {
+                const response = await fetch('http://localhost:8000/api/login');
+                if (response.ok || response.status === 405) {
+                    indicator.className = 'status-indicator online';
+                    statusText.textContent = 'Online ✓';
+                    statusText.style.color = '#10b981';
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (error) {
+                indicator.className = 'status-indicator offline';
+                statusText.textContent = 'Offline - Start Docker first';
+                statusText.style.color = '#ef4444';
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const responseEl = document.getElementById('loginResponse');
+
+            responseEl.textContent = 'Logging in...';
+            responseEl.classList.add('show');
+
+            try {
+                const response = await fetch('http://localhost:8000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.token;
+                    responseEl.innerHTML = `<span class="success">✓ Login Successful!</span>\n\nToken: ${authToken}\n\nUser: ${JSON.stringify(data.user, null, 2)}`;
+                } else {
+                    responseEl.innerHTML = `<span class="error">✗ Login Failed</span>\n\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                responseEl.innerHTML = `<span class="error">✗ Error</span>\n\n${error.message}`;
+            }
+        }
+
+        async function testCPECreation() {
+            const responseEl = document.getElementById('cpeResponse');
+            responseEl.textContent = 'Creating CPE record...';
+            responseEl.classList.add('show');
+
+            try {
+                const response = await fetch('http://localhost:8000/api/mycpe-records', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        teacher_id: parseInt(document.getElementById('cpeTeacherId').value),
+                        course_title: document.getElementById('cpeTitle').value,
+                        date_attended: '2024-11-28',
+                        duration_hours: parseFloat(document.getElementById('cpeDuration').value),
+                        provider: document.getElementById('cpeProvider').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    responseEl.innerHTML = `<span class="success">✓ CPE Record Created!</span>\n\n${data.note}\n\nRecord:\n${JSON.stringify(data.record, null, 2)}`;
+                } else {
+                    responseEl.innerHTML = `<span class="error">✗ Failed</span>\n\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                responseEl.innerHTML = `<span class="error">✗ Error</span>\n\n${error.message}`;
+            }
+        }
+
+        async function testCPECompliance() {
+            const teacherId = document.getElementById('complianceTeacherId').value;
+            const year = document.getElementById('complianceYear').value;
+            const responseEl = document.getElementById('complianceResponse');
+
+            responseEl.textContent = 'Checking compliance...';
+            responseEl.classList.add('show');
+
+            try {
+                const response = await fetch(`http://localhost:8000/api/mycpe-records/compliance/check?teacher_id=${teacherId}&year=${year}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const status = data.compliance.is_compliant ? 'COMPLIANT ✓' : 'NON-COMPLIANT ✗';
+                    const color = data.compliance.is_compliant ? 'success' : 'error';
+                    responseEl.innerHTML = `<span class="${color}">${status}</span>\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    responseEl.innerHTML = `<span class="error">✗ Failed</span>\n\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                responseEl.innerHTML = `<span class="error">✗ Error</span>\n\n${error.message}`;
+            }
+        }
+
+        // Check status on load
+        window.onload = checkBackendStatus;
+    </script>
+</body>
+
+</html>

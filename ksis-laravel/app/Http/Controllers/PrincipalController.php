@@ -155,4 +155,127 @@ class PrincipalController extends Controller
 
         return response()->json($observations);
     }
+
+
+    /**
+     * Principal observation score audit interface
+     * View all classroom observation scores aggregated for quality control
+     */
+    public function observationAudit(Request $request, $id)
+    {
+        $principal = Principal::findOrFail($id);
+
+        $query = ClassroomObservation::with(['teacher', 'principal'])
+            ->where('principal_id', $id);
+
+        // Filter by teacher
+        if ($request->has('teacher_id')) {
+            $query->where('teacher_id', $request->teacher_id);
+        }
+
+        // Filter by department
+        if ($request->has('department_id')) {
+            $query->whereHas('teacher', function($q) use ($request) {
+                $q->where('department_id', $request->department_id);
+            });
+        }
+
+        // Filter by date range
+        if ($request->has('from_date')) {
+            $query->whereDate('observed_date', '>=', $request->from_date);
+        }
+        if ($request->has('to_date')) {
+            $query->whereDate('observed_date', '<=', $request->to_date);
+        }
+
+        $observations = $query->latest('observed_date')->get();
+
+        // Calculate statistics
+        $stats = [
+            'total_observations' => $observations->count(),
+            'average_attendance_score' => $observations->avg('attendance_score'),
+            'average_lesson_plan_score' => $observations->avg('lesson_plan_score'),
+            'average_teaching_strategy_score' => $observations->avg('teaching_strategy_score'),
+            'average_student_engagement_score' => $observations->avg('student_engagement_score'),
+            'average_classroom_management_score' => $observations->avg('classroom_management_score'),
+            'average_assessment_score' => $observations->avg('assessment_score'),
+            'average_total_score' => $observations->avg('total_score'),
+        ];
+
+        // Group by teacher for comparison
+        $byTeacher = $observations->groupBy('teacher_id')->map(function($teacherObs) {
+            return [
+                'teacher' => $teacherObs->first()->teacher,
+                'observation_count' => $teacherObs->count(),
+                'average_total_score' => $teacherObs->avg('total_score'),
+                'latest_observation_date' => $teacherObs->first()->observed_date,
+            ];
+        })->values();
+
+        // Identify outliers (scores 2 standard deviations away from mean)
+        $mean = $stats['average_total_score'];
+        $variance = $observations->map(function($obs) use ($mean) {
+            return pow($obs->total_score - $mean, 2);
+        })->avg();
+        $standardDeviation = sqrt($variance);
+
+        $outliers = $observations->filter(function($obs) use ($mean, $standardDeviation) {
+            return abs($obs->total_score - $mean) > (2 * $standardDeviation);
+        })->values();
+
+        return response()->json([
+            'statistics' => $stats,
+            'observations' => $observations,
+            'by_teacher' => $byTeacher,
+            'outliers' => $outliers,
+            'outlier_threshold' => [
+                'mean' => $mean,
+                'std_dev' => $standardDeviation,
+                'lower_bound' => $mean - (2 * $standardDeviation),
+                'upper_bound' => $mean + (2 * $standardDeviation),
+            ],
+        ]);
+    }
+
+
+
+    /**
+     * Get department performance dashboard
+     */
+    public function departmentPerformance(Request $request, $id)
+    {
+        $principal = Principal::findOrFail($id);
+        
+        $year = $request->get('year', now()->year);
+        
+        $performanceService = new \App\Services\ReportingService\DepartmentPerformanceService();
+        $report = $performanceService->getDepartmentPerformance($year, $principal->id);
+        
+        return response()->json($report);
+    }
+    
+    /**
+     * Get year-over-year department comparison  
+     */
+    public function departmentComparison(Request $request, $id)
+    {
+        $principal = Principal::findOrFail($id);
+        
+        $validated = $request->validate([
+            'department_id' => 'required|exists:departments,id',
+            'current_year' => 'required|integer|min:2000|max:2100',
+            'previous_year' => 'required|integer|min:2000|max:2100',
+        ]);
+        
+        $performanceService = new \App\Services\ReportingService\DepartmentPerformanceService();
+        $comparison = $performanceService->getYearOverYearComparison(
+            $validated['department_id'],
+            $validated['current_year'],
+            $validated['previous_year']
+        );
+        
+        return response()->json($comparison);
+    }
+
 }
+

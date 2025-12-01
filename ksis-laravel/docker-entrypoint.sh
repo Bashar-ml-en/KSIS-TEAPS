@@ -6,9 +6,9 @@ echo "Fixing permissions..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Configure PHP-FPM to listen on all interfaces (required for Docker networking)
-echo "Configuring PHP-FPM to listen on 0.0.0.0:9000..."
-sed -i 's/listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/g' /usr/local/etc/php-fpm.d/www.conf
+# Configure PHP-FPM to listen on port 9000 (Docker bridge network)
+echo "Configuring PHP-FPM to listen on port 9000..."
+sed -i 's/listen = 127.0.0.1:9000/listen = 9000/g' /usr/local/etc/php-fpm.d/www.conf
 
 # Check if APP_KEY is set, if not generate it
 if grep -q "APP_KEY=" .env && [ -z "$(grep "APP_KEY=" .env | cut -d '=' -f 2)" ]; then
