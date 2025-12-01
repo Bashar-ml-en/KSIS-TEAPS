@@ -16,7 +16,7 @@ services:
     networks:
       - ksis-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ksis_user"]
+      test: [ "CMD-SHELL", "pg_isready -U ksis_user" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,7 +32,7 @@ services:
     networks:
       - ksis-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -94,7 +94,7 @@ services:
       - ksis-network
     command: python manage.py runserver 0.0.0.0:8000
 
-  # Nginx Web Server
+  # Nginx Web Server (Backend API)
   nginx:
     image: nginx:stable-alpine
     container_name: ksis-nginx
@@ -109,9 +109,23 @@ services:
     networks:
       - ksis-network
 
+  # React Frontend
+  frontend:
+    build:
+      context: ../Frontend(KSIS)
+      dockerfile: Dockerfile
+    container_name: ksis-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - nginx
+    networks:
+      - ksis-network
+
 volumes:
   postgres_data:
   redis_data:
+
 
 networks:
   ksis-network:
