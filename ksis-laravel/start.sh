@@ -14,7 +14,7 @@ php artisan route:clear
 
 # Run migrations
 echo "Running migrations..."
-php artisan migrate --force
+# php artisan migrate --force
 
 # Start server
 echo "Starting Laravel server on port ${PORT:-8080}..."
