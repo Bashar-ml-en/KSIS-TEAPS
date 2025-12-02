@@ -59,26 +59,6 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME', 'ksis'),
         'USER': os.getenv('DB_USER', 'ksis_user'),
         'PASSWORD': os.getenv('DB_PASSWORD', 'ksis_password'),
-        'HOST': os.getenv('DB_HOST', 'db'),
-        'PORT': os.getenv('DB_PORT', '5432'),
-    }
-}
-
-# Cache
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f"redis://{os.getenv('REDIS_HOST', 'redis')}:{os.getenv('REDIS_PORT', '6379')}/1",
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
-}
-
-# CORS Settings
-CORS_ALLOW_ALL_ORIGINS = True
-
-# Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
