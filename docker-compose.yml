@@ -109,19 +109,6 @@ services:
     networks:
       - ksis-network
 
-  # React Frontend
-  frontend:
-    build:
-      context: ../Frontend(KSIS)
-      dockerfile: Dockerfile
-    container_name: ksis-frontend
-    ports:
-      - "3000:80"
-    depends_on:
-      - nginx
-    networks:
-      - ksis-network
-
 volumes:
   postgres_data:
   redis_data:
