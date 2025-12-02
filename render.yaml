@@ -1,0 +1,112 @@
+services:
+  # Laravel API Web Service
+  - type: web
+    name: ksis-api
+    env: docker
+    dockerfilePath: ./ksis-laravel/Dockerfile
+    plan: free
+    healthCheckPath: /up
+    envVars:
+      - key: APP_NAME
+        value: KSIS TEAPS
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: ksis-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: ksis-postgres
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: ksis-postgres
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: ksis-postgres
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: ksis-postgres
+          property: password
+      - key: CACHE_STORE
+        value: redis
+      - key: SESSION_DRIVER
+        value: redis
+      - key: QUEUE_CONNECTION
+        value: redis
+      - key: REDIS_CLIENT
+        value: phpredis
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: ksis-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: ksis-redis
+          property: port
+      - key: NLP_SERVICE_URL
+        fromService:
+          type: web
+          name: ksis-nlp
+          property: host
+
+  # NLP Service
+  - type: web
+    name: ksis-nlp
+    env: docker
+    dockerfilePath: ./ksis-nlp/Dockerfile
+    plan: free
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: ksis_nlp.settings
+      - key: DB_HOST
+        fromDatabase:
+          name: ksis-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: ksis-postgres
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: ksis-postgres
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: ksis-postgres
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: ksis-postgres
+          property: password
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: ksis-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: ksis-redis
+          property: port
+
+databases:
+  - name: ksis-postgres
+    plan: free
+    databaseName: ksis_db
+    user: ksis_user
+
+  - name: ksis-redis
+    plan: free
+    ipAllowList: []
