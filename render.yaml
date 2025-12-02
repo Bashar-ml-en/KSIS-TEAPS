@@ -38,23 +38,11 @@ services:
           name: ksis-postgres
           property: password
       - key: CACHE_STORE
-        value: redis
+        value: database
       - key: SESSION_DRIVER
-        value: redis
+        value: database
       - key: QUEUE_CONNECTION
-        value: redis
-      - key: REDIS_CLIENT
-        value: phpredis
-      - key: REDIS_HOST
-        fromService:
-          type: redis
-          name: ksis-redis
-          property: host
-      - key: REDIS_PORT
-        fromService:
-          type: redis
-          name: ksis-redis
-          property: port
+        value: database
       - key: NLP_SERVICE_URL
         fromService:
           type: web
@@ -90,23 +78,9 @@ services:
         fromDatabase:
           name: ksis-postgres
           property: password
-      - key: REDIS_HOST
-        fromService:
-          type: redis
-          name: ksis-redis
-          property: host
-      - key: REDIS_PORT
-        fromService:
-          type: redis
-          name: ksis-redis
-          property: port
 
 databases:
   - name: ksis-postgres
     plan: free
     databaseName: ksis_db
     user: ksis_user
-
-  - name: ksis-redis
-    plan: free
-    ipAllowList: []
