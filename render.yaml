@@ -3,7 +3,7 @@ services:
   - type: web
     name: ksis-api
     env: docker
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./ksis-laravel/Dockerfile
     dockerContext: ./ksis-laravel
     plan: free
     healthCheckPath: /up
@@ -54,7 +54,7 @@ services:
   - type: web
     name: ksis-nlp
     env: docker
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./ksis-nlp/Dockerfile
     dockerContext: ./ksis-nlp
     plan: free
     envVars:
