@@ -39,7 +39,7 @@ services:
           name: ksis-postgres
           property: password
       - key: CACHE_STORE
-        value: database
+        value: file
       - key: SESSION_DRIVER
         value: database
       - key: QUEUE_CONNECTION
