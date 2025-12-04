@@ -1,15 +1,22 @@
 services:
-  # Laravel API Web Service
+  # Laravel Backend API
   - type: web
-    name: ksis-api
-    env: docker
-    dockerfilePath: ./ksis-laravel/Dockerfile
-    dockerContext: ./ksis-laravel
-    plan: free
-    healthCheckPath: /up
+    name: ksis-backend
+    runtime: php
+    rootDir: ksis-laravel
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
+    startCommand: |
+      php artisan migrate --force
+      php artisan db:seed --force
+      php artisan serve --host=0.0.0.0 --port=$PORT
+    healthCheckPath: /api/health
     envVars:
-      - key: APP_NAME
-        value: KSIS TEAPS
+      - key: APP_KEY
+        generateValue: true
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
@@ -20,69 +27,26 @@ services:
         value: pgsql
       - key: DB_HOST
         fromDatabase:
-          name: ksis-postgres
+          name: ksis-db
           property: host
       - key: DB_PORT
         fromDatabase:
-          name: ksis-postgres
+          name: ksis-db
           property: port
       - key: DB_DATABASE
         fromDatabase:
-          name: ksis-postgres
+          name: ksis-db
           property: database
       - key: DB_USERNAME
         fromDatabase:
-          name: ksis-postgres
+          name: ksis-db
           property: user
       - key: DB_PASSWORD
         fromDatabase:
-          name: ksis-postgres
-          property: password
-      - key: CACHE_STORE
-        value: file
-      - key: SESSION_DRIVER
-        value: database
-      - key: QUEUE_CONNECTION
-        value: database
-      - key: NLP_SERVICE_URL
-        fromService:
-          type: web
-          name: ksis-nlp
-          property: host
-
-  # NLP Service
-  - type: web
-    name: ksis-nlp
-    env: docker
-    dockerfilePath: ./ksis-nlp/Dockerfile
-    dockerContext: ./ksis-nlp
-    plan: free
-    envVars:
-      - key: DJANGO_SETTINGS_MODULE
-        value: ksis_nlp.settings
-      - key: DB_HOST
-        fromDatabase:
-          name: ksis-postgres
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: ksis-postgres
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: ksis-postgres
-          property: database
-      - key: DB_USER
-        fromDatabase:
-          name: ksis-postgres
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: ksis-postgres
+          name: ksis-db
           property: password
 
 databases:
-  - name: ksis-postgres
-    plan: free
-    databaseName: ksis_db
+  - name: ksis-db
+    databaseName: ksis_production
     user: ksis_user
