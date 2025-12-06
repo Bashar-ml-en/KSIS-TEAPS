@@ -245,17 +245,18 @@
                 Backend Status: <span id="statusText">Checking...</span>
             </h3>
             <p style="margin-top: 10px; color: #64748b;">API Base URL: <code>http://localhost:8000/api</code></p>
-            <p style="margin-top: 5px; color: #f59e0b;">⚠️ Start Docker first: <code>docker-compose up -d</code> in
-                <code>c:\Backend(KSIS)\ksis-laravel</code></p>
+            <p style="margin-top: 5px; color: #10b981;">✅ Backend running with: <code>php artisan serve</code></p>
+            <p style="margin-top: 5px; color: #6366f1;">☁️ Database: Supabase PostgreSQL</p>
             <button onclick="checkBackendStatus()" style="margin-top: 10px;">Check Status</button>
         </div>
 
         <div class="quick-start">
             <h3>📋 Quick Start Guide</h3>
             <ol>
-                <li><strong>Start Docker:</strong> Run <code>docker-compose up -d</code> in
-                    <code>c:\Backend(KSIS)\ksis-laravel</code></li>
-                <li><strong>Run Migrations:</strong> <code>docker-compose exec app php artisan migrate</code></li>
+                <li><strong>Backend Running:</strong> <code>php artisan serve</code> in
+                    <code>c:\Backend(KSIS)\ksis-laravel</code>
+                </li>
+                <li><strong>Database:</strong> Connected to Supabase (cloud PostgreSQL)</li>
                 <li><strong>Login:</strong> Use the login test below to get your auth token</li>
                 <li><strong>Test Features:</strong> Use the token to test all the new features</li>
                 <li><strong>Verify:</strong> Check response boxes for success confirmations</li>
@@ -273,12 +274,12 @@
 
                     <div class="input-group">
                         <label>Email:</label>
-                        <input type="email" id="loginEmail" value="teacher@example.com" placeholder="user@example.com">
+                        <input type="email" id="loginEmail" value="hr@ksis.edu.kw" placeholder="user@example.com">
                     </div>
 
                     <div class="input-group">
                         <label>Password:</label>
-                        <input type="password" id="loginPassword" value="password" placeholder="password">
+                        <input type="password" id="loginPassword" value="password123" placeholder="password">
                     </div>
 
                     <button onclick="testLogin()">Login</button>
@@ -357,7 +358,7 @@
                 }
             } catch (error) {
                 indicator.className = 'status-indicator offline';
-                statusText.textContent = 'Offline - Start Docker first';
+                statusText.textContent = 'Offline - Run: php artisan serve';
                 statusText.style.color = '#ef4444';
             }
         }

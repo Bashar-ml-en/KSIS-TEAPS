@@ -4,6 +4,8 @@ namespace App\Services\ScoringService;
 
 use App\Models\AnnualAppraisal;
 
+class RubricValidator
+{
     protected $configService;
 
     public function __construct(\App\Services\ConfigurationService\ConfigurationService $configService)

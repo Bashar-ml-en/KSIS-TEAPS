@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KSIS TEAPS - Full System Test Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar h3 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .user-info {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-info h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .user-info p {
+            color: #333;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        .workflow-menu {
+            list-style: none;
+        }
+
+        .workflow-menu li {
+            margin-bottom: 10px;
+        }
+
+        .workflow-menu button {
+            width: 100%;
+            text-align: left;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .workflow-menu button:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .workflow-menu button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .content-area {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-height: 600px;
+        }
+
+        .auth-section {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button.btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 10px;
+            transition: all 0.3s;
+        }
+
+        button.btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button.btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button.btn-secondary {
+            background: #6c757d;
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button.btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button.btn-success {
+            background: #28a745;
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .workflow-step {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .workflow-step h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .workflow-step p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .result-box {
+            background: #fff;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .result-box pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .badge-approved {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge-rejected {
+            background: #dc3545;
+            color: white;
+        }
+
+        .badge-draft {
+            background: #6c757d;
+            color: white;
+        }
+
+        .logs-container {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .logs-container .log-entry {
+            margin: 5px 0;
+        }
+
+        .logs-container .log-success {
+            color: #00ff00;
+        }
+
+        .logs-container .log-error {
+            color: #ff0000;
+        }
+
+        .logs-container .log-info {
+            color: #00bfff;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h2 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .logout-btn {
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎓 KSIS TEAPS Full System Test</h1>
+            <p>Complete End-to-End Backend Testing Dashboard</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar" id="sidebar">
+                <div id="userInfoSidebar"></div>
+                <div id="workflowMenuContainer"></div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <div id="contentArea"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Logs -->
+    <div class="container" style="margin-top: 20px;">
+        <div style="background: white; padding: 20px; border-radius: 15px;">
+            <h3 style="color: #667eea; margin-bottom: 10px;">📋 Activity Logs</h3>
+            <div class="logs-container" id="activityLogs"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8888/api';
+        let token = null;
+        let user = null;
+        let currentWorkflow = 'auth';
+
+        // State management
+        let createdData = {
+            departments: [],
+            teachers: [],
+            principals: [],
+            kpis: [],
+            observations: [],
+            appraisals: [],
+            cpeRecords: [],
+            feedback: []
+        };
+
+        // Initialize
+        function init() {
+            showAuthScreen();
+        }
+
+        // Log activity
+        function log(message, type = 'info') {
+            const logsContainer = document.getElementById('activityLogs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logClass = type === 'success' ? 'log-success' : type === 'error' ? 'log-error' : 'log-info';
+            logsContainer.innerHTML += `<div class="log-entry ${logClass}">[${timestamp}] ${message}</div>`;
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+
+        // Show authentication screen
+        function showAuthScreen() {
+            document.getElementById('sidebar').style.display = 'none';
+            document.getElementById('contentArea').innerHTML = `
+                <div class="auth-section">
+                    <div class="tabs">
+                        <button class="tab active" onclick="switchAuthTab('login')">Login</button>
+                        <button class="tab" onclick="switchAuthTab('register')">Register</button>
+                    </div>
+
+                    <!-- Login Tab -->
+                    <div class="tab-content active" id="loginTab">
+                        <h2 style="margin-bottom: 20px;">Login to KSIS TEAPS</h2>
+                        <div id="loginMessage"></div>
+                        
+                        <div class="form-group">
+                            <label>Quick Login As:</label>
+                            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                                <button class="btn-secondary" onclick="quickLogin('teacher')">Teacher</button>
+                                <button class="btn-secondary" onclick="quickLogin('principal')">Principal</button>
+                                <button class="btn-secondary" onclick="quickLogin('hr_admin')">HR Admin</button>
+                            </div>
+                        </div>
+
+                        <form id="loginForm" onsubmit="handleLogin(event)">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="loginEmail" value="bashar@ksis.edu.kw" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" id="loginPassword" value="password123" required>
+                            </div>
+                            <button type="submit" class="btn-primary">Login</button>
+                        </form>
+                    </div>
+
+                    <!-- Register Tab -->
+                    <div class="tab-content" id="registerTab">
+                        <h2 style="margin-bottom: 20px;">Create Account</h2>
+                        <div id="registerMessage"></div>
+                        <form id="registerForm" onsubmit="handleRegister(event)">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" id="regName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="regEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Role</label>
+                                <select id="regRole" required>
+                                    <option value="">Select Role...</option>
+                                    <option value="teacher">Teacher</option>
+                                    <option value="principal">Principal</option>
+                                    <option value="hr_admin">HR Admin</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" id="regPassword" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm Password</label>
+                                <input type="password" id="regPasswordConfirm" required>
+                            </div>
+                            <button type="submit" class="btn-primary">Register</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Switch auth tabs
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-section .tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-section .tab-content').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+
+        // Quick login
+        async function quickLogin(role) {
+            const credentials = {
+                teacher: { email: 'teacher@ksis.edu.kw', password: 'password123' },
+                principal: { email: 'principal@ksis.edu.kw', password: 'password123' },
+                hr_admin: { email: 'hr@ksis.edu.kw', password: 'password123' }
+            };
+
+            const creds = credentials[role];
+            document.getElementById('loginEmail').value = creds.email;
+            document.getElementById('loginPassword').value = creds.password;
+
+            await handleLogin({ preventDefault: () => { } });
+        }
+
+        // Handle login
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                log(`Attempting login: ${email}`, 'info');
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    token = data.access_token;
+                    user = data.user;
+                    log(`Login successful: ${user.name} (${user.role})`, 'success');
+                    showDashboard();
+                } else {
+                    showMessage('loginMessage', data.message || 'Login failed', 'error');
+                    log(`Login failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showMessage('loginMessage', 'Error: ' + error.message, 'error');
+                log(`Login error: ${error.message}`, 'error');
+            }
+        }
+
+        // Handle registration
+        async function handleRegister(e) {
+            e.preventDefault();
+            const formData = {
+                name: document.getElementById('regName').value,
+                email: document.getElementById('regEmail').value,
+                role: document.getElementById('regRole').value,
+                password: document.getElementById('regPassword').value,
+                password_confirmation: document.getElementById('regPasswordConfirm').value
+            };
+
+            try {
+                log(`Registering new user: ${formData.email}`, 'info');
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage('registerMessage', 'Registration successful! You can now login.', 'success');
+                    log(`Registration successful: ${formData.email}`, 'success');
+                    document.getElementById('registerForm').reset();
+                    setTimeout(() => switchAuthTab('login'), 2000);
+                } else {
+                    showMessage('registerMessage', JSON.stringify(data.errors || data.message), 'error');
+                    log(`Registration failed: ${JSON.stringify(data.errors || data.message)}`, 'error');
+                }
+            } catch (error) {
+                showMessage('registerMessage', 'Error: ' + error.message, 'error');
+                log(`Registration error: ${error.message}`, 'error');
+            }
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('sidebar').style.display = 'block';
+            updateSidebar();
+            loadWorkflow(getDefaultWorkflow());
+        }
+
+        // Get default workflow based on role
+        function getDefaultWorkflow() {
+            if (user.role === 'teacher') return 'teacher-workflows';
+            if (user.role === 'principal') return 'principal-workflows';
+            if (user.role === 'hr_admin') return 'hr-workflows';
+            return 'overview';
+        }
+
+        // Update sidebar
+        function updateSidebar() {
+            document.getElementById('userInfoSidebar').innerHTML = `
+                <div class="user-info">
+                    <h4>👤 ${user.name}</h4>
+                    <p><strong>Role:</strong> ${user.role.replace('_', ' ').toUpperCase()}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                </div>
+            `;
+
+            const workflows = getWorkflowsForRole(user.role);
+            let menuHTML = '<h3>📋 Workflows</h3><ul class="workflow-menu">';
+            workflows.forEach(wf => {
+                menuHTML += `<li><button onclick="loadWorkflow('${wf.id}')" data-workflow="${wf.id}">${wf.name}</button></li>`;
+            });
+            menuHTML += `</ul><button class="btn-danger logout-btn" onclick="logout()">Logout</button>`;
+            document.getElementById('workflowMenuContainer').innerHTML = menuHTML;
+        }
+
+        // Get workflows for role
+        function getWorkflowsForRole(role) {
+            const common = [
+                { id: 'overview', name: '📊 System Overview' },
+                { id: 'profile', name: '👤 My Profile' }
+            ];
+
+            if (role === 'teacher') {
+                return [
+                    ...common,
+                    { id: 'teacher-workflows', name: '🎯 Teacher Workflows' },
+                    { id: 'my-kpis', name: '📈 My KPIs' },
+                    { id: 'my-cpe', name: '📚 My CPE Records' },
+                    { id: 'my-evaluations', name: '📋 My Evaluations' },
+                    { id: 'feedback', name: '💬 Submit Feedback' }
+                ];
+            } else if (role === 'principal') {
+                return [
+                    ...common,
+                    { id: 'principal-workflows', name: '🏫 Principal Workflows' },
+                    { id: 'observations', name: '👀 Classroom Observations' },
+                    { id: 'kpi-review', name: '✅ Review KPI Requests' },
+                    { id: 'teacher-management', name: '👥 Manage Teachers' },
+                    { id: 'department-reports', name: '📊 Department Reports' }
+                ];
+            } else if (role === 'hr_admin') {
+                return [
+                    ...common,
+                    { id: 'hr-workflows', name: '⚙️ HR Admin Workflows' },
+                    { id: 'departments', name: '🏢 Departments' },
+                    { id: 'teachers-list', name: '👥 All Teachers' },
+                    { id: 'system-config', name: '⚙️ System Configuration' },
+                    { id: 'reports', name: '📊 Analytics & Reports' }
+                ];
+            }
+
+            return common;
+        }
+
+        // Load workflow
+        function loadWorkflow(workflowId) {
+            currentWorkflow = workflowId;
+            log(`Loading workflow: ${workflowId}`, 'info');
+
+            // Update active menu item
+            document.querySelectorAll('.workflow-menu button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-workflow') === workflowId) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Load workflow content
+            const contentArea = document.getElementById('contentArea');
+
+            switch (workflowId) {
+                case 'overview':
+                    showOverview();
+                    break;
+                case 'profile':
+                    showProfile();
+                    break;
+                case 'teacher-workflows':
+                    showTeacherWorkflows();
+                    break;
+                case 'my-kpis':
+                    showMyKPIs();
+                    break;
+                case 'my-cpe':
+                    showMyCPE();
+                    break;
+                case 'my-evaluations':
+                    showMyEvaluations();
+                    break;
+                case 'feedback':
+                    showFeedbackForm();
+                    break;
+                case 'principal-workflows':
+                    showPrincipalWorkflows();
+                    break;
+                case 'observations':
+                    showObservations();
+                    break;
+                case 'kpi-review':
+                    showKPIReview();
+                    break;
+                case 'teacher-management':
+                    showTeacherManagement();
+                    break;
+                case 'department-reports':
+                    showDepartmentReports();
+                    break;
+                case 'hr-workflows':
+                    showHRWorkflows();
+                    break;
+                case 'departments':
+                    showDepartments();
+                    break;
+                case 'teachers-list':
+                    showTeachersList();
+                    break;
+                case 'system-config':
+                    showSystemConfig();
+                    break;
+                case 'reports':
+                    showReports();
+                    break;
+                default:
+                    contentArea.innerHTML = '<h2>Workflow not found</h2>';
+            }
+        }
+
+        // Show overview
+        async function showOverview() {
+            const content = document.getElementById('contentArea');
+            content.innerHTML = '<h2>📊 System Overview</h2><p>Loading...</p>';
+
+            try {
+                const [profile, stats] = await Promise.all([
+                    apiCall('/profile', 'GET'),
+                    Promise.resolve({ teachers: 0, departments: 0, evaluations: 0, kpis: 0 })
+                ]);
+
+                content.innerHTML = `
+                    <h2>📊 System Overview</h2>
+                    <div class="alert alert-info">
+                        <strong>Welcome to KSIS TEAPS!</strong> Logged in as ${user.role.replace('_', ' ').toUpperCase()}
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div class="stat-card">
+                            <h2>${stats.teachers || '—'}</h2>
+                            <p>Total Teachers</p>
+                        </div>
+                        <div class="stat-card">
+                            <h2>${stats.departments || '—'}</h2>
+                            <p>Departments</p>
+                        </div>
+                        <div class="stat-card">
+                            <h2>${stats.evaluations || '—'}</h2>
+                            <p>Evaluations</p>
+                        </div>
+                        <div class="stat-card">
+                            <h2>${stats.kpis || '—'}</h2>
+                            <p>Active KPIs</p>
+                        </div>
+                    </div>
+
+                    <div class="workflow-step">
+                        <h3>✅ Quick Actions</h3>
+                        <p>Select a workflow from the sidebar to get started.</p>
+                    </div>
+                `;
+            } catch (error) {
+                content.innerHTML = `<h2>Error loading overview</h2><p>${error.message}</p>`;
+            }
+        }
+
+        // Show profile
+        async function showProfile() {
+            const content = document.getElementById('contentArea');
+            content.innerHTML = '<h2>👤 My Profile</h2><p>Loading...</p>';
+
+            try {
+                const profileData = await apiCall('/profile', 'GET');
+                content.innerHTML = `
+                    <h2>👤 My Profile</h2>
+                    <div class="result-box">
+                        <pre>${JSON.stringify(profileData, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                content.innerHTML = `<h2>Error loading profile</h2><p>${error.message}</p>`;
+            }
+        }
+
+        // TEACHER WORKFLOWS
+        function showTeacherWorkflows() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>🎯 Teacher Complete Workflow</h2>
+                <p>Follow these steps to test the complete teacher experience:</p>
+
+                <div class="workflow-step">
+                    <h3>Step 1: View My Information</h3>
+                    <p>Check your profile and assignments</p>
+                    <button class="btn-primary" onclick="testTeacherStep1()">Test Step 1</button>
+                    <div class="result-box" id="teacher-step1"></div>
+                </div>
+
+                <div class="workflow-step">
+                    <h3>Step 2: Create KPI Request</h3>
+                    <p>Request new KPIs for tracking</p>
+                    <button class="btn-primary" onclick="testTeacherStep2()">Test Step 2</button>
+                    <div class="result-box" id="teacher-step2"></div>
+                </div>
+
+                <div class="workflow-step">
+                    <h3>Step 3: Add CPE Records</h3>
+                    <p>Log professional development activities</p>
+                    <button class="btn-primary" onclick="testTeacherStep3()">Test Step 3</button>
+                    <div class="result-box" id="teacher-step3"></div>
+                </div>
+
+                <div class="workflow-step">
+                    <h3>Step 4: View Evaluations</h3>
+                    <p>Check classroom observations and annual appraisals</p>
+                    <button class="btn-primary" onclick="testTeacherStep4()">Test Step 4</button>
+                    <div class="result-box" id="teacher-step4"></div>
+                </div>
+
+                <div class="workflow-step">
+                    <h3>Step 5: View Feedback</h3>
+                    <p>View feedback provided by Principal/HR</p>
+                    <button class="btn-primary" onclick="testTeacherStep5()">Test Step 5</button>
+                    <div class="result-box" id="teacher-step5"></div>
+                </div>
+            `;
+        }
+
+        async function testTeacherStep1() {
+            const result = document.getElementById('teacher-step1');
+            result.innerHTML = 'Loading...';
+            try {
+                const data = await apiCall('/profile', 'GET');
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('Teacher Step 1: Profile loaded', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('Teacher Step 1 failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testTeacherStep2() {
+            const result = document.getElementById('teacher-step2');
+            result.innerHTML = 'Creating KPI request...';
+            try {
+                const kpiData = {
+                    title: 'Improve Student Engagement ' + Date.now(),
+                    description: 'Increase student participation in classroom activities',
+                    target_value: '85',
+                    measurement_criteria: 'Percentage of students actively participating',
+                    academic_year: '2024-2025'
+                };
+                const data = await apiCall('/kpi-requests', 'POST', kpiData);
+                createdData.kpis.push(data);
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('Teacher Step 2: KPI request created', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('Teacher Step 2 failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testTeacherStep3() {
+            const result = document.getElementById('teacher-step3');
+            result.innerHTML = 'Adding CPE record...';
+            try {
+                const cpeData = {
+                    activity_name: 'Educational Technology Workshop ' + Date.now(),
+                    activity_type: 'Workshop',
+                    provider: 'KSIS Professional Development',
+                    start_date: '2024-01-15',
+                    end_date: '2024-01-16',
+                    hours: 12,
+                    description: 'Advanced training on educational technology integration',
+                    evidence_url: 'https://example.com/certificate'
+                };
+                const data = await apiCall('/mycpe-records', 'POST', cpeData);
+                createdData.cpeRecords.push(data);
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('Teacher Step 3: CPE record created', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('Teacher Step 3 failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testTeacherStep4() {
+            const result = document.getElementById('teacher-step4');
+            result.innerHTML = 'Loading evaluations...';
+            try {
+                const data = await apiCall('/evaluations', 'GET');
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('Teacher Step 4: Evaluations loaded', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('Teacher Step 4 failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testTeacherStep5() {
+            const result = document.getElementById('teacher-step5');
+            result.innerHTML = 'Loading feedback...';
+            try {
+                // Teachers can view feedback about themselves
+                const data = await apiCall('/feedback?teacher_id=' + user.id, 'GET');
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('Teacher Step 5: Feedback loaded', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('Teacher Step 5 failed: ' + error.message, 'error');
+            }
+        }
+
+        // PRINCIPAL WORKFLOWS
+        function showPrincipalWorkflows() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>🏫 Principal Complete Workflow</h2>
+                <p>Follow these steps to test the complete principal experience:</p>
+
+                <div class="workflow-step">
+                    <h3>Step 1: Review Teachers</h3>
+                    <p>View and manage teachers in your department</p>
+                    <button class="btn-primary" onclick="testPrincipalStep1()">Test Step 1</button>
+                    <div class="result-box" id="principal-step1"></div>
+                </div>
+
+                <div class="workflow-step">
+                    <h3>Step 2: Create Classroom Observation</h3>
+                    <p>Schedule and conduct classroom observations</p>
+                    <button class="btn-primary" onclick="testPrincipalStep2()">Test Step 2</button>
+                    <div class="result-box" id="principal-step2"></div>
+                </div>
+
+                <div class="workflow-step">
+                    <h3>Step 3: Review KPI Requests</h3>
+                    <p>Approve or reject teacher KPI requests</p>
+                    <button class="btn-primary" onclick="testPrincipalStep3()">Test Step 3</button>
+                    <div class="result-box" id="principal-step3"></div>
+                </div>
+
+                <div class="workflow-step">
+                    <h3>Step 4: Department Performance</h3>
+                    <p>View department-wide analytics</p>
+                    <button class="btn-primary" onclick="testPrincipalStep4()">Test Step 4</button>
+                    <div class="result-box" id="principal-step4"></div>
+                </div>
+
+                <div class="workflow-step">
+                    <h3>Step 5: Submit Teacher Feedback</h3>
+                    <p>Submit feedback about a teacher</p>
+                    <button class="btn-primary" onclick="testPrincipalStep5()">Test Step 5</button>
+                    <div class="result-box" id="principal-step5"></div>
+                </div>
+            `;
+        }
+
+        async function testPrincipalStep1() {
+            const result = document.getElementById('principal-step1');
+            result.innerHTML = 'Loading teachers...';
+            try {
+                const data = await apiCall('/teachers', 'GET');
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('Principal Step 1: Teachers loaded', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('Principal Step 1 failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testPrincipalStep2() {
+            const result = document.getElementById('principal-step2');
+            result.innerHTML = 'Creating classroom observation...';
+            try {
+                // First get a teacher
+                const teachers = await apiCall('/teachers', 'GET');
+                const teacherId = teachers.data?.[0]?.id || 1;
+
+                const obsData = {
+                    teacher_id: teacherId,
+                    observation_date: '2024-12-15',
+                    lesson_topic: 'Mathematics - Algebra Basics',
+                    classroom_management_score: 4,
+                    instructional_delivery_score: 5,
+                    student_engagement_score: 4,
+                    assessment_feedback_score: 5,
+                    notes: 'Excellent lesson delivery with strong student engagement',
+                    strengths: 'Clear explanations, good use of examples',
+                    areas_for_improvement: 'Could include more group activities'
+                };
+                const data = await apiCall('/classroom-observations', 'POST', obsData);
+                createdData.observations.push(data);
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('Principal Step 2: Classroom observation created', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('Principal Step 2 failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testPrincipalStep3() {
+            const result = document.getElementById('principal-step3');
+            result.innerHTML = 'Loading KPI requests...';
+            try {
+                const data = await apiCall('/kpi-requests', 'GET');
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('Principal Step 3: KPI requests loaded', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('Principal Step 3 failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testPrincipalStep4() {
+            const result = document.getElementById('principal-step4');
+            result.innerHTML = 'Loading department performance...';
+            try {
+                const userId = user.id;
+                const data = await apiCall(`/principals/${userId}/department-performance`, 'GET');
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('Principal Step 4: Department performance loaded', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('Principal Step 4 failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testPrincipalStep5() {
+            const result = document.getElementById('principal-step5');
+            result.innerHTML = 'Submitting feedback...';
+            try {
+                // Get a teacher first
+                const teachers = await apiCall('/teachers', 'GET');
+                const teacherId = teachers.data?.[0]?.id || 1;
+
+                const feedbackData = {
+                    teacher_id: teacherId,
+                    feedback_type: 'principal',
+                    feedback_by: user.id,
+                    feedback_text: 'Teacher shows great improvement in classroom management. ' + Date.now()
+                };
+                const data = await apiCall('/feedback', 'POST', feedbackData);
+                createdData.feedback.push(data);
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('Principal Step 5: Feedback submitted', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('Principal Step 5 failed: ' + error.message, 'error');
+            }
+        }
+
+        // HR ADMIN WORKFLOWS
+        function showHRWorkflows() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>⚙️ HR Admin Complete Workflow</h2>
+                <p>Follow these steps to test the complete HR admin experience:</p>
+
+                <div class="workflow-step">
+                    <h3>Step 1: Manage Departments</h3>
+                    <p>Create and organize departments</p>
+                    <button class="btn-primary" onclick="testHRStep1()">Test Step 1</button>
+                    <div class="result-box" id="hr-step1"></div>
+                </div>
+
+                <div class="workflow-step">
+                    <h3>Step 2: System Configuration</h3>
+                    <p>Configure system settings and rubrics</p>
+                    <button class="btn-primary" onclick="testHRStep2()">Test Step 2</button>
+                    <div class="result-box" id="hr-step2"></div>
+                </div>
+
+                <div class="workflow-step">
+                    <h3>Step 3: Generate Reports</h3>
+                    <p>View school-wide analytics and reports</p>
+                    <button class="btn-primary" onclick="testHRStep3()">Test Step 3</button>
+                    <div class="result-box" id="hr-step3"></div>
+                </div>
+
+                <div class="workflow-step">
+                    <h3>Step 4: Contract Management</h3>
+                    <p>Manage teacher contracts</p>
+                    <button class="btn-primary" onclick="testHRStep4()">Test Step 4</button>
+                    <div class="result-box" id="hr-step4"></div>
+                </div>
+
+                <div class="workflow-step">
+                    <h3>Step 5: Review & Comment Feedback</h3>
+                    <p>Review principal feedback and add HR comments</p>
+                    <button class="btn-primary" onclick="testHRStep5()">Test Step 5</button>
+                    <div class="result-box" id="hr-step5"></div>
+                </div>
+            `;
+        }
+
+        async function testHRStep5() {
+            const result = document.getElementById('hr-step5');
+            result.innerHTML = 'Submitting HR feedback...';
+            try {
+                // Get a teacher first
+                const teachers = await apiCall('/teachers', 'GET');
+                const teacherId = teachers.data?.[0]?.id || 1;
+
+                const feedbackData = {
+                    teacher_id: teacherId,
+                    feedback_type: 'hr',
+                    feedback_by: user.id,
+                    feedback_text: 'HR acknowledges the principal feedback. Proceeding with appraisal. ' + Date.now()
+                };
+                const data = await apiCall('/feedback', 'POST', feedbackData);
+                createdData.feedback.push(data);
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('HR Step 5: Feedback submitted', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('HR Step 5 failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testHRStep1() {
+            const result = document.getElementById('hr-step1');
+            result.innerHTML = 'Managing departments...';
+            try {
+                const deptData = {
+                    name: 'Science Department ' + Date.now(),
+                    description: 'Science and laboratory courses',
+                    head_teacher_id: null
+                };
+                const data = await apiCall('/departments', 'POST', deptData);
+                createdData.departments.push(data);
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('HR Step 1: Department created', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('HR Step 1 failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testHRStep2() {
+            const result = document.getElementById('hr-step2');
+            result.innerHTML = 'Loading configuration...';
+            try {
+                const data = await apiCall('/config/scoring_rubric', 'GET');
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('HR Step 2: Configuration loaded', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('HR Step 2 failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testHRStep3() {
+            const result = document.getElementById('hr-step3');
+            result.innerHTML = 'Generating school report...';
+            try {
+                const data = await apiCall('/reports/school', 'GET');
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('HR Step 3: School report generated', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('HR Step 3 failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testHRStep4() {
+            const result = document.getElementById('hr-step4');
+            result.innerHTML = 'Loading contracts...';
+            try {
+                const data = await apiCall('/contracts', 'GET');
+                result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                log('HR Step 4: Contracts loaded', 'success');
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+                log('HR Step 4 failed: ' + error.message, 'error');
+            }
+        }
+
+        // Individual workflow screens
+        function showMyKPIs() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>📈 My KPIs</h2>
+                <button class="btn-primary" onclick="loadMyKPIData()">Load KPIs</button>
+                <div id="kpiList"></div>
+            `;
+        }
+
+        async function loadMyKPIData() {
+            const container = document.getElementById('kpiList');
+            container.innerHTML = 'Loading...';
+            try {
+                const data = await apiCall('/kpis', 'GET');
+                let html = `<table class="data-table">
+                    <tr>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Progress</th>
+                        <th>Actions</th>
+                    </tr>`;
+
+                (data.data || []).forEach(kpi => {
+                    html += `<tr>
+                        <td>${kpi.title || 'N/A'}</td>
+                        <td><span class="badge badge-${kpi.status || 'draft'}">${kpi.status || 'draft'}</span></td>
+                        <td>${kpi.progress || 0}%</td>
+                        <td><button class="btn-secondary" onclick="viewKPI(${kpi.id})">View</button></td>
+                    </tr>`;
+                });
+                html += '</table>';
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function showMyCPE() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>📚 My CPE Records</h2>
+                <button class="btn-primary" onclick="loadMyCPEData()">Load CPE Records</button>
+                <div id="cpeList"></div>
+            `;
+        }
+
+        async function loadMyCPEData() {
+            const container = document.getElementById('cpeList');
+            container.innerHTML = 'Loading...';
+            try {
+                const data = await apiCall('/mycpe-records', 'GET');
+                let html = `<table class="data-table">
+                    <tr>
+                        <th>Activity</th>
+                        <th>Type</th>
+                        <th>Hours</th>
+                        <th>Status</th>
+                    </tr>`;
+
+                (data.data || []).forEach(cpe => {
+                    html += `<tr>
+                        <td>${cpe.activity_name || 'N/A'}</td>
+                        <td>${cpe.activity_type || 'N/A'}</td>
+                        <td>${cpe.hours || 0}</td>
+                        <td><span class="badge badge-${cpe.status || 'pending'}">${cpe.status || 'pending'}</span></td>
+                    </tr>`;
+                });
+                html += '</table>';
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function showMyEvaluations() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>📋 My Evaluations</h2>
+                <button class="btn-primary" onclick="loadMyEvaluations()">Load Evaluations</button>
+                <div id="evalList"></div>
+            `;
+        }
+
+        async function loadMyEvaluations() {
+            const container = document.getElementById('evalList');
+            container.innerHTML = 'Loading...';
+            try {
+                const data = await apiCall('/evaluations', 'GET');
+                container.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                container.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function showFeedbackForm() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>💬 Submit Feedback</h2>
+                <div class="alert alert-info">
+                    <strong>Note:</strong> Teachers cannot submit performance feedback. This section is for Principals and HR.
+                </div>
+            `;
+        }
+
+        async function submitFeedback(e) {
+            e.preventDefault();
+            const result = document.getElementById('feedbackResult');
+            result.innerHTML = 'Submitting...';
+            try {
+                const feedbackData = {
+                    subject: document.getElementById('feedbackSubject').value,
+                    message: document.getElementById('feedbackMessage').value,
+                    category: document.getElementById('feedbackCategory').value
+                };
+                const data = await apiCall('/feedback', 'POST', feedbackData);
+                result.innerHTML = `<div class="alert alert-success">Feedback submitted successfully!</div>`;
+                log('Feedback submitted', 'success');
+            } catch (error) {
+                result.innerHTML = `<div class="alert alert-error">Error: ${error.message}</div>`;
+            }
+        }
+
+        function showObservations() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>👀 Classroom Observations</h2>
+                <button class="btn-primary" onclick="loadObservations()">Load Observations</button>
+                <div id="obsList"></div>
+            `;
+        }
+
+        async function loadObservations() {
+            const container = document.getElementById('obsList');
+            container.innerHTML = 'Loading...';
+            try {
+                const data = await apiCall('/classroom-observations', 'GET');
+                container.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                container.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function showKPIReview() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>✅ KPI Request Review</h2>
+                <button class="btn-primary" onclick="loadKPIRequests()">Load Requests</button>
+                <div id="kpiRequestList"></div>
+            `;
+        }
+
+        async function loadKPIRequests() {
+            const container = document.getElementById('kpiRequestList');
+            container.innerHTML = 'Loading...';
+            try {
+                const data = await apiCall('/kpi-requests', 'GET');
+                container.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                container.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function showTeacherManagement() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>👥 Teacher Management</h2>
+                <button class="btn-primary" onclick="loadTeachersData()">Load Teachers</button>
+                <div id="teachersList"></div>
+            `;
+        }
+
+        async function loadTeachersData() {
+            const container = document.getElementById('teachersList');
+            container.innerHTML = 'Loading...';
+            try {
+                const data = await apiCall('/teachers', 'GET');
+                container.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                container.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function showDepartmentReports() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>📊 Department Reports</h2>
+                <button class="btn-primary" onclick="loadDepartmentPerformance()">Load Performance</button>
+                <div id="deptReports"></div>
+            `;
+        }
+
+        async function loadDepartmentPerformance() {
+            const container = document.getElementById('deptReports');
+            container.innerHTML = 'Loading...';
+            try {
+                const data = await apiCall(`/principals/${user.id}/department-performance`, 'GET');
+                container.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                container.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function showDepartments() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>🏢 Department Management</h2>
+                <button class="btn-primary" onclick="loadDepartments()">Load Departments</button>
+                <div id="deptList"></div>
+            `;
+        }
+
+        async function loadDepartments() {
+            const container = document.getElementById('deptList');
+            container.innerHTML = 'Loading...';
+            try {
+                const data = await apiCall('/departments', 'GET');
+                container.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                container.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function showTeachersList() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>👥 All Teachers</h2>
+                <button class="btn-primary" onclick="loadAllTeachers()">Load All Teachers</button>
+                <div id="allTeachersList"></div>
+            `;
+        }
+
+        async function loadAllTeachers() {
+            const container = document.getElementById('allTeachersList');
+            container.innerHTML = 'Loading...';
+            try {
+                const data = await apiCall('/teachers', 'GET');
+                container.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                container.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function showSystemConfig() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>⚙️ System Configuration</h2>
+                <button class="btn-primary" onclick="loadSystemConfig()">Load Configuration</button>
+                <div id="configData"></div>
+            `;
+        }
+
+        async function loadSystemConfig() {
+            const container = document.getElementById('configData');
+            container.innerHTML = 'Loading...';
+            try {
+                const data = await apiCall('/config/scoring_rubric', 'GET');
+                container.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                container.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function showReports() {
+            document.getElementById('contentArea').innerHTML = `
+                <h2>📊 Analytics & Reports</h2>
+                <button class="btn-primary" onclick="loadSchoolReport()">Load School Report</button>
+                <div id="reportData"></div>
+            `;
+        }
+
+        async function loadSchoolReport() {
+            const container = document.getElementById('reportData');
+            container.innerHTML = 'Loading...';
+            try {
+                const data = await apiCall('/reports/school', 'GET');
+                container.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                container.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        // Utility: API call
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const options = {
+                method: method,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            const response = await fetch(`${API_URL}${endpoint}`, options);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'API call failed');
+            }
+
+            return data;
+        }
+
+        // Utility: Show message
+        function showMessage(id, message, type) {
+            const div = document.getElementById(id);
+            div.className = `alert alert-${type}`;
+            div.textContent = message;
+            div.style.display = 'block';
+        }
+
+        // Logout
+        async function logout() {
+            try {
+                await fetch(`${API_URL}/logout`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+            token = null;
+            user = null;
+            log('Logged out', 'info');
+            showAuthScreen();
+        }
+
+        // Initialize on page load
+        window.onload = init;
+    </script>
+</body>
+
+</html>

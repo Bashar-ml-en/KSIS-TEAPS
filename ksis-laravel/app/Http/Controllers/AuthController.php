@@ -101,8 +101,38 @@ class AuthController extends Controller
      */
     public function profile(Request $request)
     {
-        return response()->json([
-            'user' => $request->user(),
+        return response()->json(
+             $request->user()
+        );
+    }
+
+    /**
+     * Update profile photo
+     */
+    public function updateProfilePhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => 'required|image|max:2048', // 2MB Max
         ]);
+
+        $user = $request->user();
+
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($user->profile_photo_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo_path);
+            }
+
+            $path = $request->file('photo')->store('profile-photos', 'public');
+            $user->update(['profile_photo_path' => $path]);
+            
+            return response()->json([
+                'message' => 'Profile photo updated successfully',
+                'user' => $user,
+                'photo_url' => asset('storage/' . $path),
+            ]);
+        }
+
+        return response()->json(['message' => 'No photo uploaded'], 400);
     }
 }

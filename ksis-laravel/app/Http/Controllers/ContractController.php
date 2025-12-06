@@ -117,4 +117,28 @@ class ContractController extends Controller
             'message' => 'Contract deleted successfully',
         ]);
     }
+
+    /**
+     * Get the authenticated teacher's active contract
+     */
+    public function myContract(Request $request)
+    {
+        $user = $request->user();
+        $teacher = \App\Models\Teacher::where('user_id', $user->id)->first();
+
+        if (!$teacher) {
+            return response()->json(['message' => 'Teacher profile not found'], 404);
+        }
+        
+        $contract = Contract::where('teacher_id', $teacher->id)
+            ->where('status', 'active')
+            ->latest('start_date')
+            ->first();
+            
+        if (!$contract) {
+            return response()->json(['message' => 'No active contract found'], 404);
+        }
+        
+        return response()->json($contract);
+    }
 }

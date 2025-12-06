@@ -3,8 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AnnualAppraisalController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassroomObservationController;
+use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DepartmentController;
@@ -40,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::post('/user/profile-photo', [AuthController::class, 'updateProfilePhoto']);
 
     // Departments
     Route::apiResource('departments', DepartmentController::class);
@@ -149,6 +152,23 @@ Route::middleware('auth:sanctum')->group(function () {
     // Contract Management (HR Admin & Principal)
     Route::middleware('role:hr_admin,principal')->group(function () {
         Route::apiResource('contracts', ContractController::class);
+    });
+    Route::middleware('role:teacher')->get('my-contract', [ContractController::class, 'myContract']);
+
+    // Attendance & Leave (Teacher)
+    Route::middleware('role:teacher')->group(function () {
+        Route::get('attendance', [AttendanceController::class, 'index']);
+        Route::get('attendance/status', [AttendanceController::class, 'show']);
+        Route::post('attendance/clock-in', [AttendanceController::class, 'clockIn']);
+        Route::post('attendance/clock-out', [AttendanceController::class, 'clockOut']);
+        Route::get('attendance/metrics', [AttendanceController::class, 'metrics']);
+
+        Route::get('leave-requests', [LeaveRequestController::class, 'index']);
+        Route::post('leave-requests', [LeaveRequestController::class, 'store']);
+
+        // Dashboard Stats
+        Route::get('teacher/dashboard-stats', [TeacherController::class, 'dashboardStats']);
+        Route::get('teacher/recent-submissions', [TeacherController::class, 'recentSubmissions']);
     });
 
     // Engagement Dashboard (Teacher, Principal, HR Admin)

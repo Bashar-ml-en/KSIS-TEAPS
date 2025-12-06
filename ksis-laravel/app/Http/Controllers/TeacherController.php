@@ -181,4 +181,51 @@ class TeacherController extends Controller
 
         return response()->json($evaluations);
     }
+
+    /**
+     * Get teacher dashboard stats
+     */
+    public function dashboardStats(Request $request)
+    {
+        $user = $request->user();
+        if ($user->role !== 'teacher') {
+            abort(403);
+        }
+        $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+
+        $totalEvaluations = \App\Models\Evaluation::where('teacher_id', $teacher->id)->count();
+        $averageScore = \App\Models\Evaluation::where('teacher_id', $teacher->id)->avg('overall_score') ?? 0;
+
+        return response()->json([
+            'total_evaluations' => $totalEvaluations,
+            'average_score' => round($averageScore, 2),
+            'total_students' => 0, // Placeholder
+            'response_rate' => 85, // Placeholder
+        ]);
+    }
+
+    /**
+     * Get recent submissions
+     */
+    public function recentSubmissions(Request $request) {
+        $user = $request->user();
+        $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+        
+        $evaluations = \App\Models\Evaluation::where('teacher_id', $teacher->id)
+            ->with(['classroomObservation'])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($ev) use ($teacher) {
+                return [
+                    'id' => $ev->id,
+                    'teacher' => $teacher->full_name,
+                    'subject' => $ev->classroomObservation ? $ev->classroomObservation->subject : 'N/A',
+                    'date' => $ev->created_at->format('Y-m-d'),
+                    'rating' => (float)$ev->overall_score,
+                ];
+            });
+            
+        return response()->json($evaluations);
+    }
 }

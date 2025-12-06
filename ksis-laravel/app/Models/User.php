@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'profile_photo_path',
     ];
 
     /**
@@ -34,6 +35,27 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'profile_photo_url',
+    ];
+
+    /**
+     * Get the URL to the user's profile photo.
+     *
+     * @return string
+     */
+    public function getProfilePhotoUrlAttribute()
+    {
+        return $this->profile_photo_path
+                    ? asset('storage/' . $this->profile_photo_path)
+                    : null;
+    }
 
     /**
      * Get the attributes that should be cast.
