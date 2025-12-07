@@ -3,26 +3,26 @@
 
 echo "🚀 Starting Deployment..."
 
-# 1. Runtime Port Config (Fixes 'Failed to respond' error)
-# Railway injects $PORT at runtime. We replace 80 with this port.
+# 1. Runtime Port Config
 PORT=${PORT:-8080}
 echo "🔧 Configuring Apache for Port $PORT..."
 sed -i "s/80/$PORT/g" /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 
-# 2. Fix Permissions
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
-# 3. Clear Caches
+# 2. Clear Caches & Optimize (Running as root here)
 echo "🧹 Clearing caches..."
 php artisan config:clear
 php artisan route:clear
 php artisan view:clear
 
-# 4. Run Migrations (Non-fatal)
+# 3. Run Migrations
 echo "📦 Running Migrations..."
-# We allow failure (|| true) here so the container doesn't crash if DB is wrong.
-# This lets us see the actual error page/logs instead of "Application Failed".
 php artisan migrate --force || echo "⚠️ Migration Failed! Check logs."
+
+# 4. FIX PERMISSIONS (Must be LAST before startup)
+# We do this AFTER artisan commands because artisan creates cache files as root.
+# We must give them back to www-data so Apache can read/write them.
+echo "🔐 Fixing Permissions..."
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # 5. Start Apache
 echo "🔥 Starting Server..."
