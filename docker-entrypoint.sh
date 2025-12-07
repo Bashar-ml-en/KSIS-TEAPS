@@ -3,13 +3,6 @@
 
 echo "🚀 Starting Deployment..."
 
-# 0. FORCE .ENV GENERATION (The Ultimate Fix for Missing Env Vars)
-# This takes all runtime environment variables injected by Railway/Docker
-# and writes them to the .env file so Laravel can read them as a FILE.
-# This bypasses all php.ini / Apache environment passing issues.
-echo "📄 Generating .env file from environment variables..."
-printenv > /var/www/html/.env
-
 # 1. Runtime Port Config
 PORT=${PORT:-8080}
 echo "🔧 Configuring Apache for Port $PORT..."
@@ -27,7 +20,9 @@ php artisan migrate --force || echo "⚠️ Migration Failed! Check logs."
 
 # 4. FIX PERMISSIONS (Must be LAST before startup)
 echo "🔐 Fixing Permissions..."
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/.env
+# We explicitly remove .env if it exists to verify we are using native Env Vars
+rm -f /var/www/html/.env
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # 5. Start Apache
 echo "🔥 Starting Server..."
