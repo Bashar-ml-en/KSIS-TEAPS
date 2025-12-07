@@ -1,3 +1,4 @@
+# CACHE BUST: 2025-12-07-FIX-V3
 # Stage 1: Build Frontend
 FROM node:18-alpine as frontend
 
