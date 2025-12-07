@@ -1,18 +1,23 @@
-# CACHE BUST: 2025-12-07-FIX-V4-FORCE-NEW-LAYER
-# Stage 1: Build Frontend (Renamed to break cache)
-FROM node:18-alpine as ksis_frontend_build_v1
+# CACHE BUST: 2025-12-07-FIX-V5-FINAL
+# Stage 1: Build Frontend
+FROM node:18-alpine as frontend_build_stage
 
 WORKDIR /app/frontend
 
-# Copy package.json
 COPY frontend/package*.json ./
 
 RUN npm install
 
-# Copy frontend code
 COPY frontend/ .
 
+# Debugging: List files to confirm src exists
+RUN ls -la
+
+# Build
 RUN npm run build
+
+# Debugging: List build output to verify folder name (is it build or dist?)
+RUN ls -la
 
 # Stage 2: Serve Backend & Frontend
 FROM php:8.2-apache
@@ -29,8 +34,9 @@ WORKDIR /var/www/html
 
 COPY . .
 
-# Copy built frontend from RENAMED Stage 1
-COPY --from=ksis_frontend_build_v1 /app/frontend/build ./public/app
+# Copy built frontend from Stage 1 using the NEW STAGE NAME
+# We expect /app/frontend/build based on vite.config.ts
+COPY --from=frontend_build_stage /app/frontend/build ./public/app
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
