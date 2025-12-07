@@ -19,9 +19,13 @@ All changes have been committed and pushed.
 ### Step 2: Create New Project
 1. Click **"+ New Project"**
 2. Select **"Deploy from GitHub repo"**
-3. If asked, authorize Railway to access your GitHub
-4. Select repository: **Bashar-ml-en/KSIS-TEAPS**
-5. Select directory: **ksis-laravel** (or the root if it's in root)
+3. Select repository: **Bashar-ml-en/KSIS-TEAPS**
+
+**CRITICAL STEP: Set Root Directory**
+4. Once created, go to **Settings** -> **General**
+5. Scroll down to **Root Directory**
+6. Change `/` to `/ksis-laravel`
+7. Save changes (this will trigger a redeploy)
 
 ### Step 3: Configure Environment Variables
 In Railway dashboard, go to **Variables** tab and add these:
