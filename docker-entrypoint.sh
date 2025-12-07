@@ -3,10 +3,19 @@
 
 echo "🚀 Starting Deployment..."
 
-# Fallback for APP_KEY if Railway variable is missing (Fixes 500 Error)
+# Fallback Keys & DB Config (If Env Vars are missing)
+# This guarantees connection even if Railway injection fails.
 KNOWN_KEY="base64:siJquDUrxTdUN2gJ+AniHEUiywnnhP9ClDlqRXnwA1E="
+
+# SUPABASE CREDENTIALS (FALLBACKS)
+FB_DB_HOST="aws-1-ap-northeast-1.pooler.supabase.com"
+FB_DB_PORT="6543"
+FB_DB_DATABASE="postgres"
+FB_DB_USERNAME="postgres.brpnempyimxftzlnouam"
+FB_DB_PASSWORD="Ksisbackend123"
+
 if [ -z "$APP_KEY" ]; then
-    echo "⚠️ APP_KEY not provided by Environment. Using fallback Key."
+    echo "⚠️ APP_KEY missing. Using fallback."
     APP_KEY="$KNOWN_KEY"
 fi
 
@@ -15,7 +24,6 @@ echo "📄 Generating clean .env file..."
 rm -f /var/www/html/.env
 touch /var/www/html/.env
 
-# Function to safely append variable if it exists
 add_var() {
     name=$1
     val=$2
@@ -31,14 +39,14 @@ add_var "APP_KEY" "$APP_KEY"
 add_var "APP_DEBUG" "${APP_DEBUG:-true}"
 add_var "APP_URL" "$APP_URL"
 
-# Database Variables
+# Database Variables (Use Env Var if exists, else Fallback)
 add_var "DB_CONNECTION" "${DB_CONNECTION:-pgsql}"
-add_var "DB_HOST" "$DB_HOST"
-add_var "DB_PORT" "$DB_PORT"
-add_var "DB_DATABASE" "$DB_DATABASE"
-add_var "DB_USERNAME" "$DB_USERNAME"
-add_var "DB_PASSWORD" "$DB_PASSWORD"
-add_var "DB_SSLMODE" "$DB_SSLMODE"
+add_var "DB_HOST" "${DB_HOST:-$FB_DB_HOST}"
+add_var "DB_PORT" "${DB_PORT:-$FB_DB_PORT}"
+add_var "DB_DATABASE" "${DB_DATABASE:-$FB_DB_DATABASE}"
+add_var "DB_USERNAME" "${DB_USERNAME:-$FB_DB_USERNAME}"
+add_var "DB_PASSWORD" "${DB_PASSWORD:-$FB_DB_PASSWORD}"
+add_var "DB_SSLMODE" "${DB_SSLMODE:-require}"
 
 # Session & Auth
 add_var "SESSION_DRIVER" "cookie"
