@@ -1,6 +1,6 @@
 # CACHE BUST: 2025-12-07-FIX-V5-FINAL
 # Stage 1: Build Frontend
-FROM node:18-alpine as frontend_build_stage
+FROM node:18-alpine as ksis_frontend_build_v1
 
 WORKDIR /app/frontend
 
@@ -15,9 +15,6 @@ RUN ls -la
 
 # Build
 RUN npm run build
-
-# Debugging: List build output to verify folder name (is it build or dist?)
-RUN ls -la
 
 # Stage 2: Serve Backend & Frontend
 FROM php:8.2-apache
@@ -34,9 +31,8 @@ WORKDIR /var/www/html
 
 COPY . .
 
-# Copy built frontend from Stage 1 using the NEW STAGE NAME
-# We expect /app/frontend/build based on vite.config.ts
-COPY --from=frontend_build_stage /app/frontend/build ./public/app
+# Copy built frontend from Stage 1
+COPY --from=ksis_frontend_build_v1 /app/frontend/build ./public/app
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
@@ -48,12 +44,14 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
 EXPOSE 8080
-RUN sed -i 's/80/${PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
+
+# Note: Port configuration is handled in docker-entrypoint.sh at runtime
 
 # Copy and set entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# Fix Windows line endings causing exec errors and make executable
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh && \
+    chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Start command using entrypoint
 CMD ["docker-entrypoint.sh"]
-
