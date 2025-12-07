@@ -35,8 +35,10 @@ WORKDIR /var/www/html
 
 COPY . .
 
-# Copy built frontend from Stage 1
-COPY --from=ksis_frontend_build_v1 /app/frontend/build ./public/app
+# Copy built frontend assets to public/assets (so browser can find them)
+COPY --from=ksis_frontend_build_v1 /app/frontend/build/assets ./public/assets
+# Copy index.html to public/app so Laravel routes can serve it
+COPY --from=ksis_frontend_build_v1 /app/frontend/build/index.html ./public/app/index.html
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
