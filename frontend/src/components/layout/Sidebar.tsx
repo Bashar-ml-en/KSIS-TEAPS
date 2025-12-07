@@ -1,4 +1,4 @@
-import { Home, FileText, History, BarChart3, Bell, Settings, Users, LogOut, X, Award, Calculator, Clock, RefreshCw, MessageSquare, Target } from 'lucide-react';
+import { Home, FileText, BarChart3, Settings, Users, LogOut, X, Award, Calculator, Clock, RefreshCw, MessageSquare, Target } from 'lucide-react';
 import logo from '../../assets/ksis_logo.jpg';
 import { View } from '../../App';
 
@@ -20,7 +20,7 @@ export function Sidebar({ role, currentView, onNavigate, onLogout, isOpen = true
           { icon: Award, label: 'KPI Information', view: 'kpi-info' },
           { icon: Calculator, label: 'KPI Calculation', view: 'kpi-calculation' },
           { icon: BarChart3, label: 'Reports', view: 'reports' },
-          { icon: RefreshCw, label: 'Re-evaluation', view: 're-evaluation' },
+          // Re-evaluation removed for Principal (Teacher only)
           { icon: Users, label: 'Teachers', view: 'teacher-list' },
           { icon: MessageSquare, label: 'Evaluation', view: 'teacher-evaluation' },
         ];
@@ -39,10 +39,10 @@ export function Sidebar({ role, currentView, onNavigate, onLogout, isOpen = true
           { icon: Home, label: 'Dashboard', view: 'admin-dashboard' },
           { icon: Users, label: 'User Management', view: 'admin-users' },
           { icon: Clock, label: 'Attendance', view: 'attendance' },
-          { icon: RefreshCw, label: 'Re-evaluation', view: 're-evaluation' },
+          // Re-evaluation removed for HR
           { icon: Settings, label: 'System Settings', view: 'admin-settings' },
           { icon: BarChart3, label: 'Reports', view: 'reports' },
-          { icon: MessageSquare, label: 'Evaluate Teachers', view: 'teacher-evaluation' },
+          // Evaluate Teachers removed for HR (Principal only)
         ];
 
       default:
@@ -95,6 +95,7 @@ export function Sidebar({ role, currentView, onNavigate, onLogout, isOpen = true
               const Icon = item.icon;
               const isActive = currentView === item.view;
 
+              // Safe cast for view since we know it matches View type from logic
               return (
                 <button
                   key={item.view}
@@ -103,8 +104,8 @@ export function Sidebar({ role, currentView, onNavigate, onLogout, isOpen = true
                     onClose?.();
                   }}
                   className={`w-full flex items-center gap-4 px-4 py-3 rounded-lg transition-shadow ${isActive
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-gray-800 text-gray-200 hover:bg-gray-700 hover:shadow-md'
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'bg-gray-800 text-gray-200 hover:bg-gray-700 hover:shadow-md'
                     }`}
                 >
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">

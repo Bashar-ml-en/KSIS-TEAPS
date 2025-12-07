@@ -59,7 +59,7 @@ export function ReportScreen({ onNavigate, onLogout, userName = 'Hnin', userRole
   };
 
   return (
-    <div 
+    <div
       className="flex h-screen overflow-hidden relative"
       style={{
         backgroundImage: `url(${backgroundImage})`,
@@ -71,7 +71,7 @@ export function ReportScreen({ onNavigate, onLogout, userName = 'Hnin', userRole
     >
       {/* Background overlay */}
       <div className="absolute inset-0 bg-white/95 backdrop-blur-sm" />
-      
+
       <div className="relative z-10 flex h-screen overflow-hidden w-full">
         <Sidebar
           role={userRole ?? 'teacher'}
@@ -96,20 +96,22 @@ export function ReportScreen({ onNavigate, onLogout, userName = 'Hnin', userRole
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row gap-4 items-end">
                     <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-gray-700 mb-2 block">Teacher</label>
-                        <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="nadiah">Nadiah</SelectItem>
-                            <SelectItem value="zukifli">Zukifli</SelectItem>
-                            <SelectItem value="halawati">Halawati</SelectItem>
-                            <SelectItem value="mozaherul">Mozaherul</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      {userRole !== 'teacher' && (
+                        <div>
+                          <label className="text-gray-700 mb-2 block">Teacher</label>
+                          <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="nadiah">Nadiah</SelectItem>
+                              <SelectItem value="zukifli">Zukifli</SelectItem>
+                              <SelectItem value="halawati">Halawati</SelectItem>
+                              <SelectItem value="mozaherul">Mozaherul</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
                       <div>
                         <label className="text-gray-700 mb-2 block">Period</label>
                         <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
@@ -188,7 +190,7 @@ export function ReportScreen({ onNavigate, onLogout, userName = 'Hnin', userRole
               {/* Charts */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Bar Chart */}
-               
+
                 <Card>
                   <CardHeader>
                     <CardTitle>Average Scores by Category</CardTitle>
@@ -245,7 +247,7 @@ export function ReportScreen({ onNavigate, onLogout, userName = 'Hnin', userRole
                   <CardDescription>Comprehensive breakdown of scores per category</CardDescription>
                 </CardHeader>
                 <CardContent>
-              <div className="overflow-x-auto">
+                  <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-gray-200">
@@ -284,7 +286,7 @@ export function ReportScreen({ onNavigate, onLogout, userName = 'Hnin', userRole
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:shadow-sm transition-shadow">
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:shadow-sm transition-shadow">
                       <p className="text-gray-700 mb-2">
                         "Dr. Rodriguez is an excellent professor who makes complex topics easy to understand. Very approachable and helpful during office hours."
                       </p>
@@ -296,7 +298,7 @@ export function ReportScreen({ onNavigate, onLogout, userName = 'Hnin', userRole
                       </p>
                       <p className="text-gray-500 text-xs">- Madam Fadhilahism</p>
                     </div>
-            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                       <p className="text-gray-700 mb-2">
                         "The professor is knowledgeable and passionate about the subject. Clear explanations and fair grading."
                       </p>
