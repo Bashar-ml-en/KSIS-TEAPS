@@ -3,31 +3,63 @@
 
 echo "🚀 Starting Deployment..."
 
+# 0. SAFE .ENV GENERATION
+# We manually construct a clean .env file from specific environment variables.
+# This prevents syntax errors from 'printenv' dumps and guarantees Laravel finds the vars.
+echo "📄 Generating clean .env file..."
+rm -f /var/www/html/.env
+touch /var/www/html/.env
+
+# Function to safely append variable if it exists
+add_var() {
+    name=$1
+    val=$2
+    if [ -n "$val" ]; then
+        echo "$name=\"$val\"" >> /var/www/html/.env
+    fi
+}
+
+# Critical Laravel Variables
+add_var "APP_NAME" "${LARAVEL_APP_NAME:-KSIS-TEAPS}"
+add_var "APP_ENV" "${APP_ENV:-production}"
+add_var "APP_KEY" "$APP_KEY"
+add_var "APP_DEBUG" "${APP_DEBUG:-true}"
+add_var "APP_URL" "$APP_URL"
+
+# Database Variables
+add_var "DB_CONNECTION" "${DB_CONNECTION:-pgsql}"
+add_var "DB_HOST" "$DB_HOST"
+add_var "DB_PORT" "$DB_PORT"
+add_var "DB_DATABASE" "$DB_DATABASE"
+add_var "DB_USERNAME" "$DB_USERNAME"
+add_var "DB_PASSWORD" "$DB_PASSWORD"
+add_var "DB_SSLMODE" "$DB_SSLMODE"
+
+# Session & Auth
+add_var "SESSION_DRIVER" "cookie"
+add_var "SANCTUM_STATEFUL_DOMAINS" "$SANCTUM_STATEFUL_DOMAINS"
+
+echo "✅ .env generation complete."
+
 # 1. Runtime Port Config
 PORT=${PORT:-8080}
 echo "🔧 Configuring Apache for Port $PORT..."
 sed -i "s/80/$PORT/g" /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 
-# 2. INJECT ENV VARS INTO APACHE (The Real Fix)
-# We iterate over current vars and write them to Apache config so PHP sees them.
-echo "💉 Injecting Environment Variables into Apache..."
-printenv | sed 's/^\(.*\)=\(.*\)$/SetEnv "\1" "\2"/' > /etc/apache2/conf-enabled/railway-env.conf
-
-# 3. Clear Caches & Optimize
+# 2. Clear Caches & Optimize
 echo "🧹 Clearing caches..."
 php artisan config:clear
 php artisan route:clear
 php artisan view:clear
 
-# 4. Run Migrations
+# 3. Run Migrations
 echo "📦 Running Migrations..."
 php artisan migrate --force || echo "⚠️ Migration Failed! Check logs."
 
-# 5. FIX PERMISSIONS (Must be LAST)
+# 4. FIX PERMISSIONS (Must be LAST)
 echo "🔐 Fixing Permissions..."
-rm -f /var/www/html/.env
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /etc/apache2/conf-enabled/railway-env.conf
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/.env
 
-# 6. Start Apache
+# 5. Start Apache
 echo "🔥 Starting Server..."
 exec apache2-foreground

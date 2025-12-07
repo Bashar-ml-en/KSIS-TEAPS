@@ -15,19 +15,21 @@ if (file_exists($autoloader)) {
     echo "<p>❌ Autoloader MISSING at: $autoloader</p>";
 }
 
-// Check Environment Variables
-echo "<h2>Checking Environment</h2>";
-$key = getenv('APP_KEY');
-if ($key) {
-    echo "<p>✅ APP_KEY is set (Length: " . strlen($key) . ")</p>";
-} else {
-    echo "<p>❌ APP_KEY is NOT set in getenv()</p>";
-    echo "<p>Checking \$_ENV['APP_KEY']...</p>";
-    if (isset($_ENV['APP_KEY'])) {
-        echo "<p>✅ Found in \$_ENV (Length: " . strlen($_ENV['APP_KEY']) . ")</p>";
-    } else {
-        echo "<p>❌ Not found in \$_ENV either.</p>";
+$env = __DIR__ . '/../.env';
+if (file_exists($env)) {
+    echo "<p>✅ .env found at $env.</p>";
+    $content = file_get_contents($env);
+    echo "<pre>Content Check:\n";
+    // Show keys but hide values for security, mostly
+    foreach(explode("\n", $content) as $line) {
+        if(strpos($line, '=') !== false) {
+            list($k, $v) = explode('=', $line, 2);
+            echo "$k = " . (strlen($v) > 5 ? substr($v, 0, 3) . '...' : $v) . "\n";
+        }
     }
+    echo "</pre>";
+} else {
+    echo "<p>❌ .env MISSING. Entrypoint script failed to generate it.</p>";
 }
 
 
