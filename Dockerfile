@@ -1,16 +1,25 @@
 # Stage 1: Build Frontend
 FROM node:18-alpine as frontend
 
-WORKDIR /app
-COPY package*.json ./
+# Set working directory to where we copied the frontend code
+WORKDIR /app/frontend
+
+# Copy package.json from the frontend folder
+COPY frontend/package*.json ./
+
+# Install dependencies
 RUN npm install
-COPY . .
+
+# Copy the rest of the frontend code
+COPY frontend/ .
+
+# Build the React application
 RUN npm run build
 
 # Stage 2: Serve Backend & Frontend
 FROM php:8.2-apache
 
-# Install dependencies
+# Install dependencies (PostgreSQL, Zip, etc)
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     libzip-dev \
@@ -23,11 +32,12 @@ RUN a2enmod rewrite
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy backend files
+# Copy backend files (root of the repo)
 COPY . .
 
-# Copy built frontend from Stage 1 to public folder
-COPY --from=frontend /app/build ./public/app
+# Copy built frontend from Stage 1 to public/app folder
+# Note: we copy from /app/frontend/build because that matches outDir in vite.config.ts
+COPY --from=frontend /app/frontend/build ./public/app
 
 # Install PHP dependencies
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -41,10 +51,10 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
-# Expose port
+# Expose port (Internal Railway Port)
 EXPOSE 8080
-# Override default port to match Railway's expectations if needed, but PORT env var handles it usually.
-# On Railway, the PORT env var determines the port. We configure Apache to listen on $PORT
+
+# Configure Apache to listen on $PORT provided by Railway
 RUN sed -i 's/80/${PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 
 # Start command
