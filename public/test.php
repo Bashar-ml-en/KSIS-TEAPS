@@ -15,12 +15,21 @@ if (file_exists($autoloader)) {
     echo "<p>❌ Autoloader MISSING at: $autoloader</p>";
 }
 
-$env = __DIR__ . '/../.env';
-if (file_exists($env)) {
-    echo "<p>✅ .env found.</p>";
+// Check Environment Variables
+echo "<h2>Checking Environment</h2>";
+$key = getenv('APP_KEY');
+if ($key) {
+    echo "<p>✅ APP_KEY is set (Length: " . strlen($key) . ")</p>";
 } else {
-    echo "<p>❌ .env MISSING (Normal for Railway if using env directly)</p>";
+    echo "<p>❌ APP_KEY is NOT set in getenv()</p>";
+    echo "<p>Checking \$_ENV['APP_KEY']...</p>";
+    if (isset($_ENV['APP_KEY'])) {
+        echo "<p>✅ Found in \$_ENV (Length: " . strlen($_ENV['APP_KEY']) . ")</p>";
+    } else {
+        echo "<p>❌ Not found in \$_ENV either.</p>";
+    }
 }
+
 
 // Check Frontend File
 $frontend = __DIR__ . '/app/index.html';
