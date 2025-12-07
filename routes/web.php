@@ -1,8 +1,32 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\File;
 
-// Serve the React frontend for all non-API routes
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
+// Explicitly handle the root URL
+Route::get('/', function () {
+    $path = public_path('app/index.html');
+    
+    if (!File::exists($path)) {
+        return "React app not found at: " . $path;
+    }
+
+    return File::get($path);
+});
+
+// Handle all other routes (except API)
 Route::get('/{any}', function () {
-    return file_get_contents(public_path('app/index.html'));
+    $path = public_path('app/index.html');
+    
+    if (!File::exists($path)) {
+        return "React app not found at: " . $path;
+    }
+
+    return File::get($path);
 })->where('any', '^(?!api).*$');
