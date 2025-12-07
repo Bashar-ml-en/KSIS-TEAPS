@@ -3,9 +3,14 @@
 
 echo "🚀 Starting Deployment..."
 
+# Fallback for APP_KEY if Railway variable is missing (Fixes 500 Error)
+KNOWN_KEY="base64:siJquDUrxTdUN2gJ+AniHEUiywnnhP9ClDlqRXnwA1E="
+if [ -z "$APP_KEY" ]; then
+    echo "⚠️ APP_KEY not provided by Environment. Using fallback Key."
+    APP_KEY="$KNOWN_KEY"
+fi
+
 # 0. SAFE .ENV GENERATION
-# We manually construct a clean .env file from specific environment variables.
-# This prevents syntax errors from 'printenv' dumps and guarantees Laravel finds the vars.
 echo "📄 Generating clean .env file..."
 rm -f /var/www/html/.env
 touch /var/www/html/.env
