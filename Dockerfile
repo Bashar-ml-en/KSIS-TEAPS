@@ -25,6 +25,10 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && docker-php-ext-install pdo pdo_pgsql pgsql zip
 
+# Force PHP to read Environment Variables (Fixes SQLite fallback)
+RUN echo "variables_order = \"EGPCS\"" > /usr/local/etc/php/conf.d/custom.ini
+
+
 RUN a2enmod rewrite
 
 WORKDIR /var/www/html
