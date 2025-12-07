@@ -97,7 +97,7 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
-    'key' => env('APP_KEY'),
+    'key' => 'base64:siJquDUrxTdUN2gJ+AniHEUiywnnhP9ClDlqRXnwA1E=', // HARDCODED TEMP FIX
 
     'previous_keys' => [
         ...array_filter(
