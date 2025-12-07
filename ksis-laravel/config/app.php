@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'KSIS Evaluation and Performance System'),
+    'name' => env('LARAVEL_APP_NAME', env('APP_NAME', 'KSIS TEAPS')),
 
     /*
     |--------------------------------------------------------------------------
