@@ -7,10 +7,6 @@ import { Users, TrendingUp, FileText, Award, CheckCircle, Clock } from 'lucide-r
 import backgroundImage from '../../assets/aiuis-bg.jpg';
 import { View } from '../../App';
 
-import authService from '../../services/authService';
-import { useAuth } from '../../contexts/AuthContext';
-import { toast } from 'sonner';
-
 interface PrincipalDashboardProps {
   onNavigate: (view: View) => void;
   onLogout: () => void;
@@ -31,21 +27,8 @@ const recentReEvaluations = [
   { id: 3, teacher: 'Mdm Halawati', reason: 'Performance improvement request', status: 'Under Review', date: '2025-11-13' },
 ];
 
-export function PrincipalDashboard({ onNavigate, onLogout, userName: propUserName }: PrincipalDashboardProps) {
-  const { user, refreshUser } = useAuth();
-  const userName = user?.name || propUserName || 'Principal';
+export function PrincipalDashboard({ onNavigate, onLogout, userName = 'Principal' }: PrincipalDashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const handleProfileImageChange = async (file: File) => {
-    try {
-      await authService.updateProfilePhoto(file);
-      await refreshUser();
-      toast.success("Profile photo updated successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update profile photo");
-    }
-  };
 
   return (
     <div
@@ -74,9 +57,6 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName: propUserNam
           <Header
             title="Principal Dashboard"
             userName={userName}
-            userRole="principal"
-            userProfileImage={user?.profile_photo_url}
-            onProfileImageChange={handleProfileImageChange}
             onMenuClick={() => setSidebarOpen(true)}
           />
 
@@ -141,7 +121,7 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName: propUserNam
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => onNavigate('kpi-info')}>
                 <CardContent className="p-6">
                   <div className="flex items-center gap-4">
@@ -183,6 +163,20 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName: propUserNam
                   </div>
                 </CardContent>
               </Card>
+
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => onNavigate('teacher-evaluation')}>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <Users className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-gray-900 mb-1">Evaluate Teachers</h3>
+                      <p className="text-gray-600">Perform teacher evaluations</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -207,7 +201,7 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName: propUserNam
                           <div className="text-right">
                             <p className="text-blue-700">KPI: {teacher.kpi}%</p>
                             <p className={`text-xs ${teacher.trend === 'up' ? 'text-green-600' :
-                                teacher.trend === 'down' ? 'text-red-600' : 'text-gray-600'
+                              teacher.trend === 'down' ? 'text-red-600' : 'text-gray-600'
                               }`}>
                               {teacher.trend === 'up' ? '↑' : teacher.trend === 'down' ? '↓' : '→'}
                               {teacher.trend === 'up' ? ' Improving' : teacher.trend === 'down' ? ' Declining' : ' Stable'}
@@ -236,8 +230,8 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName: propUserNam
                         <div className="flex items-start justify-between mb-2">
                           <h4 className="text-gray-900">{request.teacher}</h4>
                           <span className={`text-xs px-2 py-1 rounded-full ${request.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                              request.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                                'bg-blue-100 text-blue-700'
+                            request.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-blue-100 text-blue-700'
                             }`}>
                             {request.status}
                           </span>
