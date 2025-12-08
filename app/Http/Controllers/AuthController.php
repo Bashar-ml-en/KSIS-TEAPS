@@ -124,6 +124,32 @@ class AuthController extends Controller
         
         if ($user->role === 'teacher') {
             $teacher = \App\Models\Teacher::with('department')->where('user_id', $user->id)->first();
+            
+            // SELF-HEALING: If teacher profile is missing, create it automatically
+            if (!$teacher) {
+                // Ensure at least one department exists
+                $defaultDept = \App\Models\Department::first();
+                if (!$defaultDept) {
+                    $defaultDept = \App\Models\Department::create([
+                        'name' => 'General Department',
+                        'code' => 'GEN', 
+                        'description' => 'Default Department',
+                        'is_active' => true
+                    ]);
+                }
+
+                $teacher = \App\Models\Teacher::create([
+                    'user_id' => $user->id,
+                    'department_id' => $defaultDept->id,
+                    'employee_id' => 'T' . str_pad($user->id, 4, '0', STR_PAD_LEFT),
+                    'full_name' => $user->name,
+                    'is_active' => true,
+                ]);
+                
+                // Refresh teacher with department
+                $teacher = \App\Models\Teacher::with('department')->find($teacher->id);
+            }
+
             if ($teacher) {
                 $teacherId = $teacher->id;
                 $department = $teacher->department;
@@ -140,7 +166,7 @@ class AuthController extends Controller
             'teacher_id' => $teacherId,
             'teacher' => $teacher ? [
                 'id' => $teacher->id,
-                'emp_id' => $teacher->emp_id,
+                'employee_id' => $teacher->employee_id, // Updated to correct field name
                 'department_id' => $teacher->department_id,
                 'department' => $department ? [
                     'id' => $department->id,
