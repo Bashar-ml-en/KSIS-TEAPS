@@ -19,6 +19,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:teacher,principal,hr_admin',
+            'department_id' => 'required_if:role,teacher|nullable|exists:departments,id',
         ]);
 
         $user = User::create([
@@ -27,6 +28,17 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
         ]);
+
+        // Auto-create teacher profile if role is teacher
+        if ($validated['role'] === 'teacher') {
+            $departmentId = $validated['department_id'] ?? 1; // Default to department 1 if not provided
+            
+            \App\Models\Teacher::create([
+                'user_id' => $user->id,
+                'department_id' => $departmentId,
+                'emp_id' => 'T' . str_pad($user->id, 4, '0', STR_PAD_LEFT),
+            ]);
+        }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
