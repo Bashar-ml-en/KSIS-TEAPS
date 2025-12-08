@@ -74,7 +74,7 @@ class ReevaluationRequestController extends Controller
         }
 
         $reevalRequest = ReevaluationRequest::create(array_merge($validated, [
-            'status' => 'draft',
+            'status' => 'pending',  // Changed from 'draft' to 'pending' for immediate visibility
         ]));
 
         return response()->json([

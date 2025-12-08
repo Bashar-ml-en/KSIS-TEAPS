@@ -101,9 +101,43 @@ class AuthController extends Controller
      */
     public function profile(Request $request)
     {
-        return response()->json(
-             $request->user()
-        );
+        $user = $request->user();
+        
+        // Load teacher relationship if user is a teacher
+        $teacher = null;
+        $department = null;
+        $teacherId = null;
+        
+        if ($user->role === 'teacher') {
+            $teacher = \App\Models\Teacher::with('department')->where('user_id', $user->id)->first();
+            if ($teacher) {
+                $teacherId = $teacher->id;
+                $department = $teacher->department;
+            }
+        }
+        
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'profile_photo_path' => $user->profile_photo_path,
+            'profile_photo_url' => $user->profile_photo_path ? asset('storage/' . $user->profile_photo_path) : null,
+            'teacher_id' => $teacherId,
+            'teacher' => $teacher ? [
+                'id' => $teacher->id,
+                'emp_id' => $teacher->emp_id,
+                'department_id' => $teacher->department_id,
+                'department' => $department ? [
+                    'id' => $department->id,
+                    'name' => $department->name,
+                ] : null
+            ] : null,
+            'department' => $department ? [
+                'id' => $department->id,
+                'name' => $department->name,
+            ] : null,
+        ]);
     }
 
     /**
