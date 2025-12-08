@@ -39,6 +39,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Authentication
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [AuthController::class, 'profile']);
+    Route::get('/user/profile', [AuthController::class, 'profile']); // Match frontend call
+    Route::get('/users', [AuthController::class, 'index']); // Fix for User Management
     Route::get('/user', function (Request $request) {
         return $request->user();
     });

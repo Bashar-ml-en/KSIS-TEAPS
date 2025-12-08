@@ -111,6 +111,15 @@ class AuthController extends Controller
     }
 
     /**
+     * Get all users
+     */
+    public function index(Request $request)
+    {
+        $users = \App\Models\User::with(['teacher', 'principal', 'hrAdmin'])->get();
+        return response()->json($users);
+    }
+
+    /**
      * Get user profile
      */
     public function profile(Request $request)
