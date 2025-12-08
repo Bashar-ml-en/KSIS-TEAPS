@@ -15,15 +15,7 @@ interface PrincipalDashboardProps {
   userName?: string;
 }
 
-const topPerformers = [
-  { id: 1, name: 'Dr. Mozaherul', department: 'Science', kpi: 95.8, trend: 'up' },
-  { id: 2, name: 'Mdm Nadiah', department: 'Mathematics', kpi: 94.5, trend: 'up' },
-  { id: 3, name: 'Mr Zukifli', department: 'IT', kpi: 93.2, trend: 'stable' },
-  { id: 4, name: 'Dr. Umi', department: 'Machine Learning', kpi: 92.7, trend: 'up' },
-  { id: 5, name: 'Mdm Halawati', department: 'Software Engineering', kpi: 91.5, trend: 'down' },
-];
-
-// Removed dummy data - will fetch from API
+// Dummy data removed - in future, fetch real top performers from API
 
 export function PrincipalDashboard({ onNavigate, onLogout, userName = 'Principal' }: PrincipalDashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);

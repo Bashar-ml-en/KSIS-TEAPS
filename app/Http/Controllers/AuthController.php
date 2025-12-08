@@ -36,7 +36,9 @@ class AuthController extends Controller
             \App\Models\Teacher::create([
                 'user_id' => $user->id,
                 'department_id' => $departmentId,
-                'emp_id' => 'T' . str_pad($user->id, 4, '0', STR_PAD_LEFT),
+                'employee_id' => 'T' . str_pad($user->id, 4, '0', STR_PAD_LEFT),
+                'full_name' => $validated['name'],
+                'is_active' => true,
             ]);
         }
 
