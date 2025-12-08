@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sidebar } from '../layout/Sidebar';
 import { Header } from '../layout/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -6,6 +6,8 @@ import { Button } from '../ui/button';
 import { Users, TrendingUp, FileText, Award, CheckCircle, Clock } from 'lucide-react';
 import backgroundImage from '../../assets/aiuis-bg.jpg';
 import { View } from '../../App';
+import api from '../../services/api';
+import { toast } from 'sonner';
 
 interface PrincipalDashboardProps {
   onNavigate: (view: View) => void;
@@ -21,14 +23,38 @@ const topPerformers = [
   { id: 5, name: 'Mdm Halawati', department: 'Software Engineering', kpi: 91.5, trend: 'down' },
 ];
 
-const recentReEvaluations = [
-  { id: 1, teacher: 'Dr. Mozaherul', reason: 'Discrepancy in ratings', status: 'Pending', date: '2025-11-15' },
-  { id: 2, teacher: 'Mdm Nadiah', reason: 'Student feedback clarification', status: 'Approved', date: '2025-11-14' },
-  { id: 3, teacher: 'Mdm Halawati', reason: 'Performance improvement request', status: 'Under Review', date: '2025-11-13' },
-];
+// Removed dummy data - will fetch from API
 
 export function PrincipalDashboard({ onNavigate, onLogout, userName = 'Principal' }: PrincipalDashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [reevaluationRequests, setReevaluationRequests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadReevaluationRequests();
+  }, []);
+
+  const loadReevaluationRequests = async () => {
+    try {
+      const response = await api.get('/reevaluation-requests?status=pending');
+      console.log('Re-evaluation requests:', response.data);
+      const requests = response.data.data || response.data;
+      // Map to expected format
+      const mappedRequests = requests.map((req: any) => ({
+        id: req.id,
+        teacher: req.teacher?.user?.name || 'Unknown Teacher',
+        reason: req.reason,
+        status: req.status === 'pending' ? 'Pending' : req.status === 'approved' ? 'Approved' : 'Under Review',
+        date: new Date(req.created_at).toISOString().split('T')[0]
+      }));
+      setReevaluationRequests(mappedRequests);
+    } catch (error) {
+      console.error('Failed to load re-evaluation requests:', error);
+      toast.error('Failed to load re-evaluation requests');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -222,24 +248,31 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName = 'Principal
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {recentReEvaluations.map((request) => (
-                      <div
-                        key={request.id}
-                        className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="text-gray-900">{request.teacher}</h4>
-                          <span className={`text-xs px-2 py-1 rounded-full ${request.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                            request.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-blue-100 text-blue-700'
-                            }`}>
-                            {request.status}
-                          </span>
-                        </div>
-                        <p className="text-gray-600 text-xs mb-2">{request.reason}</p>
-                        <p className="text-gray-500 text-xs">{request.date}</p>
+                    {loading ? (
+                      <div className="text-center py-8 text-gray-500">Loading...</div>
+                    ) : reevaluationRequests.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>No pending re-evaluation requests</p>
                       </div>
-                    ))}
+                    ) : (
+                      reevaluationRequests.map((request) => (
+                        <div
+                          key={request.id}
+                          className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <h4 className="text-gray-900">{request.teacher}</h4>
+                            <span className={`text-xs px-2 py-1 rounded-full ${request.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                              request.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-blue-100 text-blue-700'
+                              }`}>
+                              {request.status}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-xs mb-2">{request.reason}</p>
+                          <p className="text-gray-500 text-xs">{request.date}</p>
+                        </div>
+                      ))}
                   </div>
                   <Button
                     variant="outline"
