@@ -19,6 +19,7 @@ export function Sidebar({ role, currentView, onNavigate, onLogout, isOpen = true
           { icon: Home, label: 'Dashboard', view: 'principal' },
           { icon: Award, label: 'KPI Information', view: 'kpi-info' },
           { icon: Calculator, label: 'KPI Calculation', view: 'kpi-calculation' },
+          { icon: Target, label: 'KPI Approvals', view: 'kpi-approval' },
           { icon: BarChart3, label: 'Reports', view: 'reports' },
           // Re-evaluation removed for Principal (Teacher only)
           { icon: Users, label: 'Teachers', view: 'teacher-list' },
