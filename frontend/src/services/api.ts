@@ -2,7 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 // Create axios instance with base configuration
 const api = axios.create({
-    baseURL: '/api', // Relative path for single-domain deployment
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'https://ksis-teaps-production.up.railway.app/api',
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
