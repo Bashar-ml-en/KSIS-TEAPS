@@ -1,3 +1,4 @@
+// Version 2.0 - Fixed Syntax Errors
 import { useState, useEffect } from 'react';
 import { Sidebar } from '../layout/Sidebar';
 import { Header } from '../layout/Header';
@@ -256,8 +257,8 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName = 'Principal
                           <div className="flex items-start justify-between mb-2">
                             <h4 className="text-gray-900">{request.teacher}</h4>
                             <span className={`text-xs px-2 py-1 rounded-full ${request.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                request.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                                  'bg-blue-100 text-blue-700'
+                              request.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-blue-100 text-blue-700'
                               }`}>
                               {request.status}
                             </span>
