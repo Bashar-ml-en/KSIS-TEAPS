@@ -237,35 +237,6 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName = 'Principal
                   <div className="space-y-3">
                     {loading ? (
                       <div className="text-center py-8 text-gray-500">Loading...</div>
-                    ) : reevaluationRequests.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
-                        <p>No pending re-evaluation requests</p>
-                      </div>
-                    ) : (
-                      reevaluationRequests.map((request) => (
-                        <div
-                          key={request.id}
-                          className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                        >
-                          <div className="flex items-start justify-between mb-2">
-                            <h4 className="text-gray-900">{request.teacher}</h4>
-                            <span className={`text-xs px-2 py-1 rounded-full ${request.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                              request.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                                'bg-blue-100 text-blue-700'
-                              }`}>
-                              {request.status}
-                            </span>
-                          </div>
-                          <p className="text-gray-600 text-xs mb-2">{request.reason}</p>
-                          <p className="text-gray-500 text-xs">{request.date}</p>
-                        </div>
-                      ))}
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="w-full mt-4 border-blue-800 text-blue-800 hover:bg-blue-50"
-                  >
-                    View All Requests
                   </Button>
                 </CardContent>
               </Card>
