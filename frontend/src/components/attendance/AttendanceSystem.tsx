@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Clock, Calendar, CheckCircle, XCircle, AlertCircle, LogIn, LogOut as LogOutIcon } from 'lucide-react';
-import backgroundImage from '../../assets/aiuis-bg.jpg';
 import { View } from '../../App';
 import { attendanceService, Attendance, LeaveRequest, AttendanceMetrics } from '../../services/attendanceService';
 import { toast } from 'sonner';
@@ -54,23 +53,40 @@ export function AttendanceSystem({ onNavigate, onLogout, userName, userRole }: A
 
   const loadData = async () => {
     try {
+      // Use catch on individual promises to prevent one failure from crashing everything
       const [statusData, historyData, leavesData, metricsData] = await Promise.all([
-        attendanceService.getTodayStatus(),
-        attendanceService.getHistory(),
-        attendanceService.getLeaveRequests(),
-        attendanceService.getMetrics()
+        attendanceService.getTodayStatus().catch(err => {
+          console.warn('Status fail', err);
+          return { timed_in: false, time_in: null, time_out: null };
+        }),
+        attendanceService.getHistory().catch(err => {
+          console.warn('History fail', err);
+          return [];
+        }),
+        attendanceService.getLeaveRequests().catch(err => {
+          console.warn('Leaves fail', err);
+          return [];
+        }),
+        attendanceService.getMetrics().catch(err => {
+          console.warn('Metrics fail', err);
+          return { attendance_rate: 0, total_days: 0, present_days: 0, late_days: 0, leave_days: 0 };
+        })
       ]);
 
-      setIsTimedIn(statusData.timed_in);
-      if (statusData.time_in) {
-        // Format time string if needed, expecting HH:mm:ss
-        // We use a dummy date to parse the time string correctly
-        setTimeInRecord(new Date(`2000-01-01T${statusData.time_in}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }));
+      if (statusData) {
+        setIsTimedIn(statusData.timed_in);
+        if (statusData.time_in) {
+          try {
+            setTimeInRecord(new Date(`2000-01-01T${statusData.time_in}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }));
+          } catch (e) {
+            setTimeInRecord(statusData.time_in);
+          }
+        }
       }
 
-      setHistory(historyData);
-      setLeaves(leavesData);
-      setMetrics(metricsData);
+      if (historyData) setHistory(historyData);
+      if (leavesData) setLeaves(leavesData);
+      if (metricsData) setMetrics(metricsData);
     } catch (error) {
       console.error("Failed to load attendance data", error);
       toast.error("Failed to load attendance data");
@@ -81,7 +97,12 @@ export function AttendanceSystem({ onNavigate, onLogout, userName, userRole }: A
     try {
       const result = await attendanceService.clockIn();
       setIsTimedIn(true);
-      setTimeInRecord(new Date(`2000-01-01T${result.time_in}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }));
+      // Helper to format time safely
+      try {
+        setTimeInRecord(new Date(`2000-01-01T${result.time_in}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }));
+      } catch (e) {
+        setTimeInRecord(String(result.time_in));
+      }
       toast.success("Clocked in successfully");
       loadData(); // Refresh history/metrics
     } catch (error) {
@@ -105,11 +126,7 @@ export function AttendanceSystem({ onNavigate, onLogout, userName, userRole }: A
     <div
       className="flex h-screen overflow-hidden relative"
       style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed'
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
       }}
     >
       <div className="absolute inset-0 bg-white/95 backdrop-blur-sm" />

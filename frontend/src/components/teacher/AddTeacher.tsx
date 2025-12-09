@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import backgroundImage from '../../assets/aiuis-bg.jpg';
 import { View } from '../../App';
+import api from '../../services/api';
+import { toast } from 'sonner';
 
 interface AddTeacherProps {
   onNavigate: (view: View) => void;
@@ -29,72 +30,41 @@ export function AddTeacher({ onNavigate, onLogout, userName, userRole = 'princip
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !department || !email) {
-      alert('Please fill in name, department and email');
+    if (!name || !email) {
+      toast.error('Please fill in name and email');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Common payload fields
-      const commonPayload = {
-        full_name: name, // Backend expects full_name
-        email,
-        password: 'password123', // Default password
-        phone,
-        qualifications: qualification,
-        employee_id: (role === 'principal' ? 'P' : 'T') + Date.now().toString().slice(-6), // Auto-generate unique ID
+      const payload = {
+        name: name,
+        email: email,
+        password: 'password123',
+        password_confirmation: 'password123', // required by confirmed rule
+        role: role,
+        department_id: 1, // Default to 1 as UI input is text but backend needs ID
+        // Additional info like phone/office should be saved to profile, 
+        // but Register endpoint mainly handles User+Teacher creation.
+        // We can add a separate update call if needed, but for now this gets the user Access.
       };
 
-      let payload: any = { ...commonPayload };
+      await api.post('/register', payload);
 
-      if (role === 'teacher') {
-        payload = {
-          ...payload,
-          department_id: 1, // Default to first department (Curriculum)
-          office,
-          experience: experience === '' ? null : Number(experience),
-          specialization: department, // Use department input as specialization
-        };
-      } else {
-        // Principal specific fields
-        payload = {
-          ...payload,
-          school_name: 'KSIS International School',
-          date_appointed: new Date().toISOString().split('T')[0],
-        };
-      }
+      toast.success(`${role === 'principal' ? 'Principal' : 'Teacher'} account created successfully!`);
+      toast.info(`Login details sent: ${email} / password123`);
 
-      // Determine endpoint based on role
-      const endpoint = role === 'principal' ? '/api/principals' : '/api/teachers';
+      // Delay to show toast
+      setTimeout(() => {
+        onNavigate('teacher-list');
+      }, 1500);
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          // Add auth token if available (usually handled by interceptor, but good to be safe)
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create user');
-      }
-
-      // small delay to show progress
-      await new Promise((r) => setTimeout(r, 700));
-
-      setIsSubmitting(false);
-      alert(`${role === 'principal' ? 'Principal' : 'Teacher'} added successfully!\n\nLogin Email: ${email}\nPassword: password123`);
-      onNavigate('teacher-list');
     } catch (err: any) {
-      setIsSubmitting(false);
       console.error(err);
-      alert(`Failed to add ${role}: ${err.message}`);
+      toast.error(err.response?.data?.message || err.message || 'Failed to create account');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -102,11 +72,7 @@ export function AddTeacher({ onNavigate, onLogout, userName, userRole = 'princip
     <div
       className="flex h-screen overflow-hidden relative"
       style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed'
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
       }}
     >
       <div className="absolute inset-0 bg-white/95 backdrop-blur-sm" />
@@ -114,7 +80,7 @@ export function AddTeacher({ onNavigate, onLogout, userName, userRole = 'princip
       <div className="relative z-10 flex h-screen overflow-hidden w-full">
         <Sidebar
           role={userRole}
-          currentView="teacher-list"
+          currentView="teacher-list" // Keep sidebar active on list
           onNavigate={onNavigate}
           onLogout={onLogout}
           isOpen={sidebarOpen}
@@ -154,8 +120,9 @@ export function AddTeacher({ onNavigate, onLogout, userName, userRole = 'princip
                       <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Dr. Amina" />
                     </div>
                     <div>
-                      <Label>Department *</Label>
+                      <Label>Department (Text)</Label>
                       <Input value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="e.g. Mathematics" />
+                      <p className="text-xs text-gray-500 mt-1">Note: Will be assigned to default department (ID: 1).</p>
                     </div>
                     <div>
                       <Label>Email *</Label>
@@ -178,7 +145,7 @@ export function AddTeacher({ onNavigate, onLogout, userName, userRole = 'princip
                       <Input type="number" value={experience as any} onChange={(e) => setExperience(e.target.value === '' ? '' : Number(e.target.value))} />
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 pt-4">
                       <Button type="submit" className="bg-blue-800 hover:bg-blue-950 text-white" disabled={isSubmitting}>
                         {isSubmitting ? 'Saving...' : 'Create Account'}
                       </Button>
