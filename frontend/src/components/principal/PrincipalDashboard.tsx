@@ -4,7 +4,6 @@ import { Header } from '../layout/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Users, TrendingUp, FileText, Award, CheckCircle, Clock } from 'lucide-react';
-import backgroundImage from '../../assets/aiuis-bg.jpg';
 import { View } from '../../App';
 import api from '../../services/api';
 import { toast } from 'sonner';
@@ -52,11 +51,7 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName = 'Principal
     <div
       className="flex h-screen overflow-hidden relative"
       style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed'
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', // Fallback gradient
       }}
     >
       <div className="absolute inset-0 bg-white/95 backdrop-blur-sm" />
