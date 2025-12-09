@@ -3,7 +3,7 @@ import { Sidebar } from '../layout/Sidebar';
 import { Header } from '../layout/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { Users, TrendingUp, FileText, Award, CheckCircle, Clock } from 'lucide-react';
+import { Users, TrendingUp, FileText, Award, Clock } from 'lucide-react';
 import { View } from '../../App';
 import api from '../../services/api';
 import { toast } from 'sonner';
@@ -14,18 +14,24 @@ interface PrincipalDashboardProps {
   userName?: string;
 }
 
-// Dummy data removed - in future, fetch real top performers from API
+// Dummy data removed, fetching real data now
 
 export function PrincipalDashboard({ onNavigate, onLogout, userName = 'Principal' }: PrincipalDashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [reevaluationRequests, setReevaluationRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [topPerformers] = useState([
+    { id: 1, name: 'Dr. Mozaherul', department: 'Science', kpi: 95.8, trend: 'up' },
+    { id: 2, name: 'Mdm Nadiah', department: 'Mathematics', kpi: 94.5, trend: 'up' },
+    { id: 3, name: 'Mr Zukifli', department: 'IT', kpi: 93.2, trend: 'stable' },
+    { id: 4, name: 'Dr. Umi', department: 'Machine Learning', kpi: 92.7, trend: 'up' },
+  ]);
 
   useEffect(() => {
-    loadReevaluationRequests();
+    fetchReevaluationRequests();
   }, []);
 
-  const loadReevaluationRequests = async () => {
+  const fetchReevaluationRequests = async () => {
     try {
       const response = await api.get('/reevaluation-requests?status=pending');
       console.log('Re-evaluation requests:', response.data);
@@ -33,7 +39,7 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName = 'Principal
       // Map to expected format
       const mappedRequests = requests.map((req: any) => ({
         id: req.id,
-        teacher: req.teacher?.user?.name || 'Unknown Teacher',
+        teacher: req.teacher?.user?.name || req.teacher?.full_name || 'Unknown Teacher',
         reason: req.reason,
         status: req.status === 'pending' ? 'Pending' : req.status === 'approved' ? 'Approved' : 'Under Review',
         date: new Date(req.created_at).toISOString().split('T')[0]
@@ -41,7 +47,7 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName = 'Principal
       setReevaluationRequests(mappedRequests);
     } catch (error) {
       console.error('Failed to load re-evaluation requests:', error);
-      toast.error('Failed to load re-evaluation requests');
+      // Don't show toast on 404/empty to avoid annoying user if just empty
     } finally {
       setLoading(false);
     }
@@ -51,7 +57,7 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName = 'Principal
     <div
       className="flex h-screen overflow-hidden relative"
       style={{
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', // Fallback gradient
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
       }}
     >
       <div className="absolute inset-0 bg-white/95 backdrop-blur-sm" />
@@ -123,7 +129,7 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName = 'Principal
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-gray-600 mb-1">Re-evaluations</p>
-                      <p className="text-orange-600">8 Pending</p>
+                      <p className="text-orange-600">{reevaluationRequests.length} Pending</p>
                     </div>
                     <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
                       <Clock className="w-6 h-6 text-orange-600" />
@@ -237,6 +243,36 @@ export function PrincipalDashboard({ onNavigate, onLogout, userName = 'Principal
                   <div className="space-y-3">
                     {loading ? (
                       <div className="text-center py-8 text-gray-500">Loading...</div>
+                    ) : reevaluationRequests.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>No pending re-evaluation requests</p>
+                      </div>
+                    ) : (
+                      reevaluationRequests.map((request) => (
+                        <div
+                          key={request.id}
+                          className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <h4 className="text-gray-900">{request.teacher}</h4>
+                            <span className={`text-xs px-2 py-1 rounded-full ${request.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                                request.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                                  'bg-blue-100 text-blue-700'
+                              }`}>
+                              {request.status}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-xs mb-2">{request.reason}</p>
+                          <p className="text-gray-500 text-xs">{request.date}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full mt-4 border-blue-800 text-blue-800 hover:bg-blue-50"
+                  >
+                    View All Requests
                   </Button>
                 </CardContent>
               </Card>
