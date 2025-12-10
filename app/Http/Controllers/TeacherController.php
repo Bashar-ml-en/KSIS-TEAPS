@@ -51,7 +51,7 @@ class TeacherController extends Controller
             'employee_id' => 'required|unique:teachers,employee_id',
             'full_name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
-            'department_id' => 'required|exists:departments,id',
+            'department_id' => 'nullable|exists:departments,id',
             'date_joined' => 'nullable|date',
             'specialization' => 'nullable|string|max:255',
             'qualifications' => 'nullable|string',
@@ -72,7 +72,7 @@ class TeacherController extends Controller
             'employee_id' => $validated['employee_id'],
             'full_name' => $validated['full_name'],
             'phone' => $validated['phone'] ?? null,
-            'department_id' => $validated['department_id'],
+            'department_id' => $validated['department_id'] ?? null,
             'date_joined' => $validated['date_joined'] ?? now(),
             'specialization' => $validated['specialization'] ?? null,
             'qualifications' => $validated['qualifications'] ?? null,
@@ -80,9 +80,13 @@ class TeacherController extends Controller
             'is_active' => true,
         ]);
 
-        // Update department teacher count
-        $department = Department::find($validated['department_id']);
-        $department->increment('total_teachers');
+        // Update department teacher count only if department is set
+        if (!empty($validated['department_id'])) {
+            $department = Department::find($validated['department_id']);
+            if ($department) {
+                $department->increment('total_teachers');
+            }
+        }
 
         return response()->json([
             'message' => 'Teacher created successfully',
@@ -116,7 +120,7 @@ class TeacherController extends Controller
         $validated = $request->validate([
             'full_name' => 'sometimes|string|max:255',
             'phone' => 'nullable|string|max:20',
-            'department_id' => 'sometimes|exists:departments,id',
+            'department_id' => 'nullable|exists:departments,id',
             'specialization' => 'nullable|string|max:255',
             'qualifications' => 'nullable|string',
             'documents' => 'nullable|array',
@@ -124,12 +128,18 @@ class TeacherController extends Controller
         ]);
 
         // Update department teacher count if department changed
-        if (isset($validated['department_id']) && $validated['department_id'] != $teacher->department_id) {
-            $oldDepartment = Department::find($teacher->department_id);
-            $oldDepartment?->decrement('total_teachers');
+        if (array_key_exists('department_id', $validated) && $validated['department_id'] != $teacher->department_id) {
+            // Decrement old department count
+            if ($teacher->department_id) {
+                $oldDepartment = Department::find($teacher->department_id);
+                $oldDepartment?->decrement('total_teachers');
+            }
             
-            $newDepartment = Department::find($validated['department_id']);
-            $newDepartment->increment('total_teachers');
+            // Increment new department count
+            if ($validated['department_id']) {
+                $newDepartment = Department::find($validated['department_id']);
+                $newDepartment?->increment('total_teachers');
+            }
         }
 
         $teacher->update($validated);
