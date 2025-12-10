@@ -1,8 +1,0 @@
-.git
-node_modules
-vendor
-tests
-*.log
-.env
-Dockerfile*
-docker-compose*
