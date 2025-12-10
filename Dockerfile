@@ -1,22 +1,5 @@
-# CACHE BUST: 2025-12-07-FIX-V5-FINAL
-# Stage 1: Build Frontend
-FROM node:18-alpine as ksis_frontend_build_v1
-
-WORKDIR /app/frontend
-
-COPY frontend/package*.json ./
-
-RUN npm install
-
-COPY frontend/ .
-
-# Debugging: List files to confirm src exists
-RUN ls -la
-
-# Build
-RUN npm run build
-
-# Stage 2: Serve Backend & Frontend
+# CACHE BUST: 2025-12-10-BACKEND-ONLY
+# Serve Backend Only (Frontend is on Vercel)
 FROM php:8.2-apache
 
 RUN apt-get update && apt-get install -y \
@@ -34,11 +17,6 @@ RUN a2enmod rewrite
 WORKDIR /var/www/html
 
 COPY . .
-
-# Copy built frontend assets to public/assets (so browser can find them)
-COPY --from=ksis_frontend_build_v1 /app/frontend/build/assets ./public/assets
-# Copy index.html to public/app so Laravel routes can serve it
-COPY --from=ksis_frontend_build_v1 /app/frontend/build/index.html ./public/app/index.html
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader

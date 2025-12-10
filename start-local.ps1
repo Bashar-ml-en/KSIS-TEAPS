@@ -20,7 +20,7 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 # Start Laravel Backend
 Write-Host "[1/3] Starting Laravel Backend on http://localhost:8000..." -ForegroundColor Green
-$backendPath = Join-Path $scriptDir "ksis-laravel"
+$backendPath = $scriptDir
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$backendPath'; Write-Host 'Laravel Backend Starting...' -ForegroundColor Magenta; php artisan serve --host=localhost --port=8000"
 
 Start-Sleep -Seconds 2
@@ -44,12 +44,14 @@ foreach ($path in $nginxPaths) {
     if (Test-Path $path -ErrorAction SilentlyContinue) {
         $nginxExe = $path
         break
-    } elseif ($path -eq "nginx") {
+    }
+    elseif ($path -eq "nginx") {
         try {
             $null = Get-Command nginx -ErrorAction Stop
             $nginxExe = "nginx"
             break
-        } catch {}
+        }
+        catch {}
     }
 }
 
@@ -70,7 +72,8 @@ if ($null -eq $nginxExe) {
     Write-Host "  - Backend:  http://localhost:8000/api" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "But for unified access at port 8080, nginx is required." -ForegroundColor Yellow
-} else {
+}
+else {
     # Start Nginx
     Write-Host "[3/3] Starting Nginx reverse proxy on http://localhost:8080..." -ForegroundColor Green
     
@@ -80,7 +83,8 @@ if ($null -eq $nginxExe) {
     try {
         & $nginxExe -s stop 2>$null
         Start-Sleep -Seconds 1
-    } catch {}
+    }
+    catch {}
     
     # Start nginx with our config
     Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Nginx Reverse Proxy Starting...' -ForegroundColor Cyan; & '$nginxExe' -c '$nginxConfig'"

@@ -51,7 +51,7 @@ You need to run **three** services:
 
 #### Terminal 1: Start Laravel Backend
 ```powershell
-cd C:\Backend(KSIS)\ksis-laravel
+cd C:\Backend(KSIS)
 php artisan serve --host=localhost --port=8000
 ```
 
@@ -109,7 +109,7 @@ taskkill /PID <PID> /F
 
 ### API Requests Failing
 - Ensure Laravel is running on port 8000
-- Check Laravel logs: `Backend(KSIS)\ksis-laravel\storage\logs\`
+- Check Laravel logs: `Backend(KSIS)\storage\logs\`
 - Verify CORS settings in Laravel
 
 ### Frontend Not Loading

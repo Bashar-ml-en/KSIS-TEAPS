@@ -13,16 +13,11 @@ class DepartmentSeeder extends Seeder
     public function run(): void
     {
         $departments = [
-            ['name' => 'Mathematics', 'code' => 'MATH', 'description' => 'Mathematics Department'],
-            ['name' => 'Science', 'code' => 'SCI', 'description' => 'Science Department'],
-            ['name' => 'English', 'code' => 'ENG', 'description' => 'English Department'],
-            ['name' => 'Information Technology', 'code' => 'IT', 'description' => 'IT Department'],
-            ['name' => 'Machine Learning', 'code' => 'ML', 'description' => 'Machine Learning Department'],
-            ['name' => 'Software Engineering', 'code' => 'SE', 'description' => 'Software Engineering Department'],
-            ['name' => 'History', 'code' => 'HIST', 'description' => 'History Department'],
-            ['name' => 'Physical Education', 'code' => 'PE', 'description' => 'Physical Education Department'],
-            ['name' => 'Art & Design', 'code' => 'ART', 'description' => 'Art & Design Department'],
-            ['name' => 'Music', 'code' => 'MUS', 'description' => 'Music Department'],
+            ['name' => 'Language', 'code' => 'LANG', 'description' => 'Language Department'],
+            ['name' => 'STEM & Social Sciences', 'code' => 'STEM_SS', 'description' => 'STEM and Social Sciences Department'],
+            ['name' => 'Islamic Studies', 'code' => 'ISLAMIC', 'description' => 'Islamic Studies Department'],
+            ['name' => 'Student Affairs', 'code' => 'STUDENT', 'description' => 'Student Affairs Department'],
+            ['name' => 'Co-curriculum & event', 'code' => 'CO_CURR', 'description' => 'Co-curriculum and Events Department'],
         ];
 
         foreach ($departments as $dept) {

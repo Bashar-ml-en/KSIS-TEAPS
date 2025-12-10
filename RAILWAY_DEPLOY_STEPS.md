@@ -24,7 +24,7 @@ All changes have been committed and pushed.
 **CRITICAL STEP: Set Root Directory**
 4. Once created, go to **Settings** -> **General**
 5. Scroll down to **Root Directory**
-6. Change `/` to `/ksis-laravel`
+6. Ensure it is set to `/` (Root)
 7. Save changes (this will trigger a redeploy)
 
 ### Step 3: Configure Environment Variables
@@ -56,7 +56,7 @@ CORS_ALLOWED_ORIGINS=http://localhost:3000
 **Option A - Generate Locally (Recommended)**
 ```powershell
 # Run this in your local terminal:
-cd c:\Backend(KSIS)\ksis-laravel
+cd c:\Backend(KSIS)
 php artisan key:generate --show
 ```
 
@@ -100,8 +100,7 @@ If Railway doesn't detect Laravel automatically:
    ```
 
 3. **Root Directory**: 
-   - If code is in `ksis-laravel` folder: `/ksis-laravel`
-   - If code is in root: `/`
+   - Set to: `/`
 
 ---
 
