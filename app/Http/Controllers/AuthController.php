@@ -19,7 +19,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:teacher,principal,hr_admin',
-            'department_id' => 'required_if:role,teacher|nullable|exists:departments,id',
+            'department_id' => 'nullable|exists:departments,id',
         ]);
 
         $user = User::create([
