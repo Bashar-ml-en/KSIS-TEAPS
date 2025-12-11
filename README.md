@@ -1,59 +1,93 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# KSIS-TEAPS - Knowledge Sustainability International School Teacher Evaluation and Performance System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+🏫 A comprehensive Teacher Evaluation and Performance Assessment Platform
 
-## About Laravel
+## 📁 Monorepo Structure
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+```
+KSIS-TEAPS/
+├── frontend/          # React + Vite + TypeScript
+│   ├── src/
+│   ├── package.json
+│   └── vercel.json
+├── backend/           # Laravel 11 API (root level)
+│   ├── app/
+│   ├── routes/
+│   ├── database/
+│   └── api/index.php  # Vercel entry point
+├── vercel.json        # Backend Vercel config
+└── README.md
+```
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Quick Deploy to Vercel
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Backend
+1. Import this repo to Vercel
+2. Framework: **Other**
+3. Root Directory: `./` (backend is at root)
+4. Add environment variables (see VERCEL_DEPLOYMENT.md)
 
-## Learning Laravel
+### Frontend  
+1. Import this repo to Vercel AGAIN
+2. Framework: **Vite**
+3. Root Directory: `frontend`
+4. Add environment variable: `VITE_API_URL=<backend-url>/api`
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 🛠️ Local Development
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Backend
+```bash
+cd ./
+php artisan serve
+```
 
-## Laravel Sponsors
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 📊 Tech Stack
 
-### Premium Partners
+**Frontend:**
+- React 18 + TypeScript
+- Vite
+- Tailwind CSS + shadcn/ui
+- Axios
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+**Backend:**
+- Laravel 11
+- PostgreSQL (Supabase)
+- Sanctum Auth
+- Vercel Serverless
 
-## Contributing
+**Infrastructure:**
+- Hosting: Vercel
+- Database: Supabase PostgreSQL
+- Storage: Supabase S3
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 📖 Documentation
 
-## Code of Conduct
+- [Vercel Deployment Guide](./VERCEL_DEPLOYMENT.md)
+- [API Documentation](./API_DOCUMENTATION.md)
+- [Feature Checklist](./FEATURE_COMPLETION_CHECKLIST.md)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## ✨ Features
 
-## Security Vulnerabilities
+- ✅ User Management (Teachers, Principals, HR Admins)
+- ✅ Contract Management
+- ✅ System Settings
+- ✅ KPI Management
+- ✅ Performance Evaluations
+- ✅ Attendance Tracking
+- ✅ CPE (Continuous Professional Education) Records
+- ✅ Reports & Analytics
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🔐 Default Test Users
 
-## License
+See `database/seeders/TestUsersSeeder.php` for test credentials.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 📝 License
+
+Proprietary - KSIS International School

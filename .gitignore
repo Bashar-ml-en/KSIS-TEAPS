@@ -23,4 +23,7 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
-frontend/
+# Ignore frontend dependencies but keep source
+frontend/node_modules/
+frontend/dist/
+frontend/build/
