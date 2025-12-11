@@ -14,8 +14,9 @@
     ],
     "env": {
         "APP_ENV": "production",
-        "APP_DEBUG": "true",
-        "APP_URL": "https://ksis-backend.vercel.app",
+        "APP_DEBUG": "false",
+        "APP_KEY": "base64:8zudbfycKRqikRLspUeub5ZRuopSs5j5sh/kCaX4xaU=",
+        "APP_URL": "https://ksisbackend.vercel.app",
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
