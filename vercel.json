@@ -11,5 +11,9 @@
             "src": "/(.*)",
             "dest": "/api/index.php"
         }
-    ]
+    ],
+    "env": {
+        "SESSION_DRIVER": "cookie",
+        "CACHE_DRIVER": "array"
+    }
 }
