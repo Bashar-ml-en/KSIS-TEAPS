@@ -10,6 +10,10 @@ export interface Attendance {
     hours_worked: number;
     created_at: string;
     updated_at: string;
+    user?: {
+        name: string;
+        email: string;
+    };
 }
 
 export interface LeaveRequest {
@@ -23,6 +27,9 @@ export interface LeaveRequest {
     rejection_reason: string | null;
     created_at: string;
     updated_at: string;
+    user?: {
+        name: string;
+    };
 }
 
 export interface AttendanceMetrics {
@@ -68,4 +75,9 @@ export const attendanceService = {
         const response = await api.post<LeaveRequest>('/leave-requests', data);
         return response.data;
     },
+
+    updateLeaveStatus: async (id: number, status: 'approved' | 'rejected', rejection_reason?: string) => {
+        const response = await api.post<LeaveRequest>(`/leave-requests/${id}/status`, { status, rejection_reason });
+        return response.data;
+    }
 };

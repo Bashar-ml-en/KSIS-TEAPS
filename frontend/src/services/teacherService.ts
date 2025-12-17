@@ -3,8 +3,10 @@ import api from './api';
 export interface DashboardStats {
     total_evaluations: number;
     average_score: number;
-    total_students: number;
-    response_rate: number;
+    pending_kpi_requests: number;
+    kpi_approval_rate: number;
+    attendance_rate: number;
+    total_kpi_requests: number;
 }
 
 export interface Submission {

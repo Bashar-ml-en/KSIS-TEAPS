@@ -112,16 +112,16 @@ export function Header({ title, userName = 'User', userRole, onMenuClick, userPr
   };
 
   return (
-    <header className="bg-black border-b border-gray-200 sticky top-0 z-30">
+    <header className="bg-white sticky top-0 z-30 transition-all duration-300 border-b border-gray-200 shadow-sm">
       <div className="flex items-center justify-between px-4 lg:px-6 py-4">
         <div className="flex items-center gap-4">
           <button
             onClick={onMenuClick}
-            className="lg:hidden text-white hover:text-gray-300"
+            className="lg:hidden text-gray-500 hover:text-gray-700 transition-colors p-1 rounded-md hover:bg-gray-100"
           >
             <Menu className="w-6 h-6" />
           </button>
-          {title && <h1 className="text-white text-lg font-semibold">{title}</h1>}
+          {title && <h1 className="text-gray-900 text-lg font-bold tracking-tight">{title}</h1>}
         </div>
 
         <div className="flex items-center gap-4">
@@ -129,11 +129,11 @@ export function Header({ title, userName = 'User', userRole, onMenuClick, userPr
           <div className="relative" ref={notificationDropdownRef}>
             <button
               onClick={handleBellClick}
-              className="relative text-white hover:text-gray-300 transition-colors"
+              className="relative text-gray-500 hover:text-gray-700 transition-all p-2 rounded-full hover:bg-gray-100"
             >
               <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 rounded-full text-white text-xs flex items-center justify-center font-semibold">
+                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center font-bold ring-2 ring-white">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -141,22 +141,22 @@ export function Header({ title, userName = 'User', userRole, onMenuClick, userPr
 
             {/* Notifications Dropdown */}
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+              <div className="absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden ring-1 ring-black/5 animate-in fade-in slide-in-from-top-2 duration-200">
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                  <h3 className="font-semibold text-gray-900">Notifications</h3>
+                <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50">
+                  <h3 className="font-bold text-gray-900">Notifications</h3>
                   <div className="flex items-center gap-2">
                     {unreadCount > 0 && (
                       <button
                         onClick={handleMarkAllAsRead}
-                        className="text-xs text-blue-600 hover:text-blue-800"
+                        className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
                       >
                         Mark all read
                       </button>
                     )}
                     <button
                       onClick={() => setShowNotifications(false)}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -164,39 +164,41 @@ export function Header({ title, userName = 'User', userRole, onMenuClick, userPr
                 </div>
 
                 {/* Notifications List */}
-                <div className="max-h-96 overflow-y-auto">
+                <div className="max-h-[28rem] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
                   {loading ? (
-                    <div className="p-4 text-center text-gray-500">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                      <p className="mt-2 text-sm">Loading...</p>
+                    <div className="p-8 text-center text-gray-500">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
+                      <p className="text-sm font-medium">Loading updates...</p>
                     </div>
                   ) : notifications.length === 0 ? (
-                    <div className="p-8 text-center text-gray-500">
-                      <Bell className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                      <p className="text-sm">No notifications</p>
+                    <div className="p-10 text-center text-gray-400">
+                      <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Bell className="w-8 h-8 text-gray-300" />
+                      </div>
+                      <p className="text-sm font-medium">No new notifications</p>
                     </div>
                   ) : (
-                    <div className="divide-y divide-gray-100">
+                    <div className="divide-y divide-gray-50">
                       {notifications.map((notification) => (
                         <div
                           key={notification.id}
-                          className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${!notification.is_read ? 'bg-blue-50' : ''
+                          className={`p-4 hover:bg-blue-50/50 cursor-pointer transition-colors relative group ${!notification.is_read ? 'bg-blue-50/30' : ''
                             }`}
                           onClick={() => handleMarkAsRead(notification.id)}
                         >
                           <div className="flex items-start gap-3">
                             <div
-                              className={`w-2 h-2 rounded-full mt-2 ${!notification.is_read ? 'bg-blue-600' : 'bg-transparent'
+                              className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 transition-opacity ${!notification.is_read ? 'bg-blue-600' : 'bg-transparent'
                                 }`}
                             ></div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">
+                              <p className={`text-sm ${!notification.is_read ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'} truncate`}>
                                 {notification.title}
                               </p>
-                              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                              <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">
                                 {notification.message}
                               </p>
-                              <p className="text-xs text-gray-400 mt-1">
+                              <p className="text-[10px] text-gray-400 mt-1.5 font-medium">
                                 {notificationService.formatTime(notification.created_at)}
                               </p>
                             </div>
@@ -209,8 +211,8 @@ export function Header({ title, userName = 'User', userRole, onMenuClick, userPr
 
                 {/* Footer */}
                 {notifications.length > 0 && (
-                  <div className="p-3 border-t border-gray-200 text-center">
-                    <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                  <div className="p-3 border-t border-gray-100 bg-gray-50/50 text-center">
+                    <button className="text-xs text-blue-600 hover:text-blue-800 font-bold hover:underline">
                       View all notifications
                     </button>
                   </div>
@@ -223,10 +225,10 @@ export function Header({ title, userName = 'User', userRole, onMenuClick, userPr
           <div className="relative" ref={profileDropdownRef}>
             <button
               onClick={handleProfileClick}
-              className="flex items-center gap-2 hover:bg-gray-800 px-3 py-2 rounded-lg transition-colors"
+              className={`flex items-center gap-3 px-2 py-1.5 rounded-full transition-all duration-200 border ${showProfileMenu ? 'bg-gray-100 border-gray-200' : 'border-transparent hover:bg-gray-100 hover:border-gray-200'}`}
             >
               {/* Profile Image */}
-              <div className="relative w-10 h-10 rounded-full overflow-hidden bg-white flex items-center justify-center">
+              <div className="relative w-9 h-9 rounded-full overflow-hidden bg-gray-100 ring-2 ring-gray-200 flex items-center justify-center text-gray-500">
                 {userProfileImage ? (
                   <img
                     src={userProfileImage}
@@ -234,43 +236,42 @@ export function Header({ title, userName = 'User', userRole, onMenuClick, userPr
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <User className="w-6 h-6 text-gray-600" />
+                  <User className="w-5 h-5" />
                 )}
               </div>
-              <span className="hidden sm:inline text-white/90 font-medium">{userName}</span>
-              <ChevronDown className={`w-4 h-4 text-white/70 transition-transform ${showProfileMenu ? 'rotate-180' : ''}`} />
+              <div className="hidden sm:flex flex-col items-start pr-1">
+                <span className="text-sm font-semibold text-gray-900 leading-tight">{userName}</span>
+                <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">{userRole}</span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} />
             </button>
 
             {/* Profile Dropdown Menu */}
             {showProfileMenu && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+              <div className="absolute right-0 mt-3 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden ring-1 ring-black/5 animate-in fade-in slide-in-from-top-2 duration-200">
                 {/* User Info */}
-                <div className="p-4 border-b border-gray-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="relative">
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                <div className="p-5 border-b border-gray-100 bg-gradient-to-b from-gray-50/80 to-transparent">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="relative group cursor-pointer" onClick={triggerImageUpload}>
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white ring-2 ring-gray-200 shadow-md flex items-center justify-center text-gray-500">
                         {userProfileImage ? (
                           <img
                             src={userProfileImage}
                             alt={userName}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover group-hover:opacity-75 transition-opacity"
                           />
                         ) : (
-                          <User className="w-8 h-8 text-gray-400" />
+                          <User className="w-7 h-7" />
                         )}
                       </div>
-                      {/* Change Photo Button (appears on large avatar) */}
-                      <button
-                        onClick={triggerImageUpload}
-                        className="absolute bottom-0 right-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
-                        title="Change profile picture"
-                      >
-                        <Camera className="w-3 h-3 text-white" />
-                      </button>
+                      {/* Change Photo Overlay */}
+                      <div className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Camera className="w-5 h-5 text-white" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900 truncate">{userName}</p>
-                      <p className="text-sm text-gray-500 capitalize">
+                      <p className="font-bold text-gray-900 truncate text-lg">{userName}</p>
+                      <p className="text-xs text-blue-600 font-bold uppercase tracking-wider bg-blue-50 inline-block px-2 py-0.5 rounded-full border border-blue-100">
                         {userRole === 'admin' ? 'HR Admin' : userRole}
                       </p>
                     </div>
@@ -288,30 +289,35 @@ export function Header({ title, userName = 'User', userRole, onMenuClick, userPr
                   {/* Change Photo Button (visible button) */}
                   <button
                     onClick={triggerImageUpload}
-                    className="w-full px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2"
+                    className="w-full px-3 py-2 text-xs font-semibold bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-700 rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm"
                   >
-                    <Camera className="w-4 h-4" />
+                    <Camera className="w-3.5 h-3.5" />
                     <span>Change Profile Picture</span>
                   </button>
                 </div>
 
                 {/* Menu Items */}
-                <div className="py-2">
+                <div className="p-2 space-y-1">
                   <button
                     onClick={() => {
                       setShowProfileMenu(false);
                       // Navigate to settings if you have it
                     }}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center gap-3 transition-colors"
+                    className="w-full px-3 py-2.5 text-left text-gray-700 hover:bg-gray-100/80 rounded-lg flex items-center gap-3 transition-colors group"
                   >
-                    <Settings className="w-4 h-4" />
-                    <span>Profile Settings</span>
+                    <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-white flex items-center justify-center text-gray-500 group-hover:text-blue-600 transition-colors shadow-sm">
+                      <Settings className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="font-medium text-sm block">Profile Settings</span>
+                      <span className="text-[10px] text-gray-400">Manage your account</span>
+                    </div>
                   </button>
                 </div>
 
                 {/* Note: Logout is in the sidebar */}
-                <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
-                  <p className="text-xs text-gray-500 text-center">
+                <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/50 text-center">
+                  <p className="text-[10px] text-gray-400 font-medium">
                     Use sidebar to logout
                   </p>
                 </div>

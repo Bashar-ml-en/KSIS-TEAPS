@@ -8,7 +8,7 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Badge } from '../ui/badge';
-import { Plus, CheckCircle, XCircle, Clock, Target } from 'lucide-react';
+import { Plus, CheckCircle, XCircle, Clock, Target, Send } from 'lucide-react';
 import { View } from '../../App';
 import api from '../../services/api';
 import { toast } from 'sonner';
@@ -151,15 +151,19 @@ export function KPIRequest({ onNavigate, onLogout, userName, userRole }: KPIRequ
                                     Department: <span className="font-semibold text-blue-700">{departmentName || 'Loading...'}</span>
                                 </p>
                             </div>
-                            <Button onClick={() => setShowForm(!showForm)} className="bg-blue-600 hover:bg-blue-700 shadow-sm">
+                            <Button onClick={() => setShowForm(!showForm)} className="bg-blue-600 hover:bg-blue-700 shadow-sm text-white">
                                 {showForm ? 'Cancel Request' : <><Plus className="w-4 h-4 mr-2" /> Create New KPI</>}
                             </Button>
                         </div>
 
-                        {/* Process Guide */}
+                        {/* Process Guide - Now Interactive */}
                         {!showForm && (
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <Card className="bg-white border-l-4 border-l-blue-500 shadow-sm">
+                                {/* 1. Define KPI - Opens form */}
+                                <Card
+                                    className="bg-white border-l-4 border-l-blue-500 shadow-sm cursor-pointer hover:shadow-md transition-all hover:scale-[1.02]"
+                                    onClick={() => setShowForm(true)}
+                                >
                                     <CardContent className="pt-6">
                                         <div className="flex items-center gap-3 mb-2">
                                             <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
@@ -167,13 +171,23 @@ export function KPIRequest({ onNavigate, onLogout, userName, userRole }: KPIRequ
                                             </div>
                                             <h3 className="font-semibold text-gray-900">1. Define KPI</h3>
                                         </div>
-                                        <p className="text-sm text-gray-600">
+                                        <p className="text-sm text-gray-600 mb-3">
                                             Set a SMART goal aligned with your department's objectives. Define clear targets and measurement criteria.
                                         </p>
+                                        <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                                            <Plus className="w-4 h-4 mr-1" /> Create New KPI
+                                        </Button>
                                     </CardContent>
                                 </Card>
 
-                                <Card className="bg-white border-l-4 border-l-yellow-500 shadow-sm">
+                                {/* 2. Submit & Review - Shows pending count */}
+                                <Card
+                                    className="bg-white border-l-4 border-l-yellow-500 shadow-sm cursor-pointer hover:shadow-md transition-all hover:scale-[1.02]"
+                                    onClick={() => {
+                                        const el = document.getElementById('requests-table');
+                                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                >
                                     <CardContent className="pt-6">
                                         <div className="flex items-center gap-3 mb-2">
                                             <div className="p-2 bg-yellow-100 rounded-lg text-yellow-600">
@@ -181,13 +195,26 @@ export function KPIRequest({ onNavigate, onLogout, userName, userRole }: KPIRequ
                                             </div>
                                             <h3 className="font-semibold text-gray-900">2. Submit & Review</h3>
                                         </div>
-                                        <p className="text-sm text-gray-600">
-                                            Submit your request. Your Principal will review it to ensure it meets the standards and aligns with school goals.
+                                        <p className="text-sm text-gray-600 mb-3">
+                                            Submit your request. Your Principal will review it to ensure it meets the standards.
                                         </p>
+                                        <div className="flex items-center justify-between bg-yellow-50 p-2 rounded-lg">
+                                            <span className="text-sm text-yellow-700">Pending Review:</span>
+                                            <Badge className="bg-yellow-200 text-yellow-800 hover:bg-yellow-200">
+                                                {requests.filter(r => r.status === 'pending').length}
+                                            </Badge>
+                                        </div>
                                     </CardContent>
                                 </Card>
 
-                                <Card className="bg-white border-l-4 border-l-green-500 shadow-sm">
+                                {/* 3. Track Progress - Shows approved count */}
+                                <Card
+                                    className="bg-white border-l-4 border-l-green-500 shadow-sm cursor-pointer hover:shadow-md transition-all hover:scale-[1.02]"
+                                    onClick={() => {
+                                        const el = document.getElementById('requests-table');
+                                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                >
                                     <CardContent className="pt-6">
                                         <div className="flex items-center gap-3 mb-2">
                                             <div className="p-2 bg-green-100 rounded-lg text-green-600">
@@ -195,13 +222,20 @@ export function KPIRequest({ onNavigate, onLogout, userName, userRole }: KPIRequ
                                             </div>
                                             <h3 className="font-semibold text-gray-900">3. Track Progress</h3>
                                         </div>
-                                        <p className="text-sm text-gray-600">
-                                            Once approved, the KPI becomes active. You can then start tracking your progress and uploading evidence.
+                                        <p className="text-sm text-gray-600 mb-3">
+                                            Once approved, the KPI becomes active. Track your progress and upload evidence.
                                         </p>
+                                        <div className="flex items-center justify-between bg-green-50 p-2 rounded-lg">
+                                            <span className="text-sm text-green-700">Active KPIs:</span>
+                                            <Badge className="bg-green-200 text-green-800 hover:bg-green-200">
+                                                {requests.filter(r => r.status === 'approved').length}
+                                            </Badge>
+                                        </div>
                                     </CardContent>
                                 </Card>
                             </div>
                         )}
+
 
                         {/* Form Section */}
                         {showForm && (
@@ -283,10 +317,16 @@ export function KPIRequest({ onNavigate, onLogout, userName, userRole }: KPIRequ
                                             />
                                         </div>
 
-                                        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                                            <Button type="button" variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
-                                            <Button type="submit" disabled={submitting} className="bg-blue-600 hover:bg-blue-700">
-                                                {submitting ? 'Submitting...' : 'Submit Request'}
+                                        <div className="flex flex-row justify-end items-center gap-4 pt-6 border-t border-gray-200 mt-6 pb-2">
+                                            <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="text-gray-700 border-gray-300 hover:bg-gray-100">
+                                                Cancel
+                                            </Button>
+                                            <Button type="submit" disabled={submitting} className="bg-blue-600 hover:bg-blue-700 text-white min-w-[160px] py-2">
+                                                {submitting ? (
+                                                    <>Submitting...</>
+                                                ) : (
+                                                    <><Send className="w-4 h-4 mr-2" /> Submit KPI</>
+                                                )}
                                             </Button>
                                         </div>
                                     </form>
@@ -295,7 +335,7 @@ export function KPIRequest({ onNavigate, onLogout, userName, userRole }: KPIRequ
                         )}
 
                         {/* Requests List */}
-                        <div className="space-y-4">
+                        <div id="requests-table" className="space-y-4">
                             <h2 className="text-xl font-semibold text-gray-900">My Requests</h2>
                             <Card className="shadow-sm">
                                 <CardContent className="p-0">

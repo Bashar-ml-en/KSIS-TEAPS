@@ -5,11 +5,10 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import authService from '../../services/authService';
 import logo from '../../assets/ksis_logo.jpg';
-import studentsImage from '../../assets/aiuis-login-illustration.png';
+
 import backgroundImage from '../../assets/aiuis-bg.jpg';
 
 export function LoginScreen() {
@@ -22,6 +21,7 @@ export function LoginScreen() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [departmentId, setDepartmentId] = useState<string>('');
+  const [currentRole, setCurrentRole] = useState<'teacher' | 'principal' | 'hr_admin'>('teacher');
 
   const departments = [
     { id: '1', name: 'Language' },
@@ -118,252 +118,222 @@ export function LoginScreen() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-700/70 to-slate-800/80 backdrop-blur-sm" />
+    <div className="min-h-screen w-full flex bg-white overflow-hidden">
+      {/* Left Side - Brand & Image Section */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 text-white overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div
+          className="absolute inset-0 z-0 opacity-40"
+          style={{
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
 
-      <Card className="w-full max-w-5xl relative z-10 shadow-2xl border-blue-800/50 bg-black/98 overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px]">
-          <AnimatePresence mode="wait">
-            {isLogin ? (
-              <motion.div
-                key="illustration-right"
-                initial={{ x: -100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -100, opacity: 0 }}
-                transition={{ duration: 0.5, ease: 'easeInOut' }}
-                className="order-2 lg:order-1 bg-gradient-to-br from-blue-950 via-blue-500 to-blue-950 p-8 lg:p-12 flex flex-col items-center justify-center text-black relative overflow-hidden"
-              >
-                <div className="absolute top-10 left-10 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-10 right-10 w-40 h-40 bg-blue-300/10 rounded-full blur-3xl animate-pulse delay-700" />
+        {/* Gradient Overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-950/90 via-blue-900/80 to-slate-900/90 z-10" />
 
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                  className="text-center z-10"
-                >
-                  <img src={studentsImage}
-                    alt="Education Illustration"
-                    className="w-84 h-84 object-contain mx-auto mb-6 drop-shadow-2xl animate-float"
-                  />
+        {/* Content */}
+        <div className="relative z-20 flex flex-col justify-between w-full p-12 h-full">
+          <div>
+            <h3 className="text-xl font-bold tracking-wider text-blue-200 uppercase">KSIS TEAPS</h3>
+          </div>
 
+          <div className="space-y-6 max-w-lg">
+            <h1 className="text-5xl font-extrabold leading-tight tracking-tight text-white drop-shadow-md">
+              Inspiring Minds,<br />
+              <span className="text-blue-300">Shaping Futures.</span>
+            </h1>
+            <p className="text-blue-100/90 text-lg leading-relaxed font-light">
+              Welcome to the Knowledge Sustainability International School performance evaluation system. Empowering educators with data-driven insights.
+            </p>
+          </div>
 
-                  <h2 className="text-black mb-4">Knowledge Sustainability International School</h2>
-                  <p className="text-blue-100 text-sm max-w-sm">
-                    Empowering educators through comprehensive performance evaluation and continuous professional development.
-                  </p>
-                </motion.div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="illustration-left"
-                initial={{ x: 100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: 100, opacity: 0 }}
-                transition={{ duration: 0.5, ease: 'easeInOut' }}
-                className="order-2 bg-gradient-to-br from-blue-950 via-blue-900 to-blue-950 p-8 lg:p-12 flex flex-col items-center justify-center text-black relative overflow-hidden"
-              >
-                <div className="absolute top-10 right-10 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-10 left-10 w-40 h-40 bg-blue-300/10 rounded-full blur-3xl animate-pulse delay-700" />
-
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                  className="text-center z-10"
-                >
-                  <img
-                    src={studentsImage}
-                    alt="Students"
-                    className="w-64 h-64 object-contain mx-auto mb-6 drop-shadow-2xl"
-                  />
-                  <h2 className="text-black mb-4">Join KSIS Today</h2>
-                  <p className="text-blue-100 text-sm max-w-sm">
-                    Create your account and start your journey towards excellence in teaching and professional growth.
-                  </p>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={isLogin ? 'login-form' : 'register-form'}
-              initial={{ x: isLogin ? 100 : -100, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: isLogin ? -100 : 100, opacity: 0 }}
-              transition={{ duration: 0.5, ease: 'easeInOut' }}
-              className={`p-8 lg:p-12 flex flex-col justify-center ${isLogin ? 'order-2' : 'order-1'}`}
-            >
-              <div className="max-w-md mx-auto w-full">
-                <motion.div
-                  className="flex justify-center mb-8"
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
-                >
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-blue-500/30 rounded-full blur-2xl animate-pulse" />
-                    <div
-                      className="absolute inset-0 bg-blue-00/20 rounded-full blur-3xl animate-pulse"
-                      style={{ animationDelay: '0.5s' }}
-                    />
-                    <div className="absolute inset-0 bg-blue-600/40 rounded-full blur-xl" />
-
-                    <div className="relative p-6 bg-gradient-to-br from-blue-50 via-black to-blue-50 rounded-full shadow-2xl border-4 border-blue-200">
-                      <img src={logo} alt="KSIS Logo" className="w-20 h-20 object-contain relative z-10" />
-                    </div>
-                  </div>
-                </motion.div>
-
-                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }}>
-                  <h1 className="text-blue-950 text-center mb-2">{isLogin ? 'Welcome Back!' : 'Create Account'}</h1>
-                  <p className="text-gray-600 text-center mb-8 text-sm">
-                    {isLogin ? 'Sign in to continue' : 'Join Knowledge Sustainability International School (KSIS)'}
-                  </p>
-
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    {!isLogin && (
-                      <div>
-                        <Label>Full Name</Label>
-                        <Input
-                          type="text"
-                          placeholder="Enter your full name"
-                          value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
-                          disabled={isLoading}
-                        />
-                      </div>
-                    )}
-
-                    <div>
-                      <Label>Email</Label>
-                      <Input
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        disabled={isLoading}
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Password</Label>
-                      <Input
-                        type="password"
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        disabled={isLoading}
-                      />
-                    </div>
-
-                    {!isLogin && (
-                      <div>
-                        <Label>Confirm Password</Label>
-                        <Input
-                          type="password"
-                          placeholder="Confirm your password"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          disabled={isLoading}
-                        />
-                      </div>
-                    )}
-
-                    {!isLogin && (
-                      <div>
-                        <Label>Select Role</Label>
-                        <Select value={getRoleDisplayValue(currentRole)} onValueChange={handleRoleChange} disabled={isLoading}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="teacher">Teacher</SelectItem>
-                            <SelectItem value="principal">Principal</SelectItem>
-                            <SelectItem value="admin">HR/Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-
-                    {!isLogin && currentRole === 'teacher' && (
-                      <div>
-                        <Label>Select Department (Required)</Label>
-                        <Select value={departmentId} onValueChange={setDepartmentId} disabled={isLoading}>
-                          <SelectTrigger className="mt-1">
-                            <SelectValue placeholder="Choose your department..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {departments.map((dept) => (
-                              <SelectItem key={dept.id} value={dept.id}>
-                                {dept.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-
-                    {error && (
-                      <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                        <AlertCircle className="w-4 h-4 text-red-600" />
-                        <p className="text-red-700 text-xs">{error}</p>
-                      </div>
-                    )}
-
-                    <Button
-                      type="submit"
-                      className="w-full bg-blue-900 hover:bg-blue-950 text-white shadow-lg"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          {isLogin ? 'Signing in...' : 'Creating account...'}
-                        </>
-                      ) : (
-                        isLogin ? 'Login' : 'Register'
-                      )}
-                    </Button>
-
-                    <div className="text-center">
-                      <p className="text-gray-600 text-sm">
-                        {isLogin ? "Don't have an account? " : 'Already have an account? '}
-                        <button
-                          onClick={toggleMode}
-                          type="button"
-                          className="text-blue-900 hover:underline"
-                          disabled={isLoading}
-                        >
-                          {isLogin ? 'Register now' : 'Login'}
-                        </button>
-                      </p>
-                    </div>
-
-                    {/* Test credentials helper - can be removed in production */}
-                    {isLogin && (
-                      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs">
-                        <p className="text-blue-800 font-medium mb-1">Test Credentials:</p>
-                        <p className="text-blue-600">HR Admin: hr@ksis.edu.kw / password123</p>
-                        <p className="text-blue-600">Principal: principal@ksis.edu.kw / password123</p>
-                        <p className="text-blue-600">Teacher: teacher@ksis.edu.kw / password123</p>
-                      </div>
-                    )}
-                  </form>
-                </motion.div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
+          <div className="text-xs text-blue-300/60 font-medium">
+            © 2025 Knowledge Sustainability International School. All rights reserved.
+          </div>
         </div>
-      </Card>
+      </div>
+
+      {/* Right Side - Login Form Section */}
+      <div className="flex-1 flex flex-col justify-center items-center p-6 lg:p-12 relative bg-gray-50">
+
+        {/* Mobile Background for small screens */}
+        <div
+          className="absolute inset-0 lg:hidden z-0"
+          style={{
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" />
+        </div>
+
+        <Card className="w-full max-w-md border-0 shadow-2xl lg:shadow-none bg-white/95 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none relative z-10 p-2 lg:p-0">
+          <div className="p-6 lg:px-4 lg:py-2">
+
+            {/* Logo Section - Constrained Size */}
+            <div className="flex justify-center mb-8 lg:mb-10">
+              <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full bg-white shadow-lg p-3 flex items-center justify-center border border-gray-100">
+                <img
+                  src={logo}
+                  alt="KSIS Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2 text-center mb-8">
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+                {isLogin ? 'Welcome back' : 'Create an account'}
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {isLogin
+                  ? 'Enter your credentials to access your dashboard'
+                  : 'Enter your details below to create your account'}
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Full Name</Label>
+                  <Input
+                    type="text"
+                    placeholder="John Doe"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    disabled={isLoading}
+                    className="h-11 bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg transition-all"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Email Address</Label>
+                <Input
+                  type="email"
+                  placeholder="name@ksis.edu.kw"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  className="h-11 bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg transition-all"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Password</Label>
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  className="h-11 bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg transition-all"
+                />
+              </div>
+
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Confirm Password</Label>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    disabled={isLoading}
+                    className="h-11 bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg transition-all"
+                  />
+                </div>
+              )}
+
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Select Role</Label>
+                  <Select value={getRoleDisplayValue(currentRole)} onValueChange={handleRoleChange} disabled={isLoading}>
+                    <SelectTrigger className="h-11 bg-white border-gray-300 rounded-lg">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="teacher">Teacher</SelectItem>
+                      <SelectItem value="principal">Principal</SelectItem>
+                      <SelectItem value="admin">HR/Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {!isLogin && currentRole === 'teacher' && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Select Department</Label>
+                  <Select value={departmentId} onValueChange={setDepartmentId} disabled={isLoading}>
+                    <SelectTrigger className="h-11 bg-white border-gray-300 rounded-lg">
+                      <SelectValue placeholder="Select Department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {departments.map((dept) => (
+                        <SelectItem key={dept.id} value={dept.id}>
+                          {dept.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {error && (
+                <div className="flex items-center gap-2 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span className="font-medium">{error}</span>
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full h-11 bg-blue-900 hover:bg-blue-800 text-white font-semibold rounded-lg shadow-md transition-all duration-200 ease-in-out transform hover:-translate-y-0.5"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Processing...</span>
+                  </div>
+                ) : (
+                  <span>{isLogin ? 'Sign In' : 'Create Account'}</span>
+                )}
+              </Button>
+
+              {isLogin && (
+                <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Demo Credentials</p>
+                  <div className="space-y-1 text-xs text-gray-600 font-mono">
+                    <div className="flex justify-between"><span>Admin:</span> <span className="select-all">hr@ksis.edu.kw</span></div>
+                    <div className="flex justify-between"><span>Principal:</span> <span className="select-all">principal@ksis.edu.kw</span></div>
+                    <div className="flex justify-between"><span>Teacher:</span> <span className="select-all">teacher@ksis.edu.kw</span></div>
+                    <div className="text-center pt-1 text-gray-400">(pw: password123)</div>
+                  </div>
+                </div>
+              )}
+            </form>
+
+            <div className="mt-8 text-center text-sm">
+              <span className="text-gray-500">
+                {isLogin ? "New to KSIS?" : "Already have an account?"}
+              </span>
+              <button
+                onClick={toggleMode}
+                type="button"
+                className="ml-2 font-semibold text-blue-900 hover:text-blue-700 hover:underline transition-colors focus:outline-none"
+                disabled={isLoading}
+              >
+                {isLogin ? 'Create an account' : 'Sign in'}
+              </button>
+            </div>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }

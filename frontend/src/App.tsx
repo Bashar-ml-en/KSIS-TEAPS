@@ -16,6 +16,7 @@ import { ReEvaluationRequest } from './components/evaluation/ReEvaluationRequest
 import { TeacherList } from './components/teacher/TeacherList';
 import { AddTeacher } from './components/teacher/AddTeacher';
 import { KPIRequest } from './components/kpi/KPIRequest';
+import { KPIApproval } from './components/kpi/KPIApproval';
 import { ContractStatus } from './components/teacher/ContractStatus';
 import { Toaster } from './components/ui/sonner';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -23,7 +24,7 @@ import { User } from './services/api';
 
 export type View = 'principal' | 'teacher' | 'admin' | 'admin-dashboard' | 'admin-users' | 'admin-settings' | 'admin-contracts' |
   'evaluation-form' | 'reports' | 'login' | 'kpi-info' | 'kpi-calculation' | 'attendance' |
-  're-evaluation' | 'teacher-list' | 'teacher-evaluation' | 'add-teacher' | 'kpi-request' | 'my-contract';
+  're-evaluation' | 'teacher-list' | 'teacher-evaluation' | 'add-teacher' | 'kpi-request' | 'my-contract' | 'principal-kpi-requests';
 
 // Map backend roles to frontend role types
 function mapBackendRole(role: string): 'principal' | 'teacher' | 'admin' {
@@ -146,6 +147,9 @@ function AppContent() {
       )}
       {currentView === 'teacher-evaluation' && (
         <TeacherEvaluation onNavigate={handleNavigate} onLogout={handleLogout} userName={userName} userRole={userRole as 'principal' | 'admin'} />
+      )}
+      {currentView === 'principal-kpi-requests' && (
+        <KPIApproval onNavigate={handleNavigate} onLogout={handleLogout} userName={userName} userRole={userRole as 'principal'} />
       )}
     </div>
   );

@@ -1,9 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
+import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
     alias: {
@@ -52,13 +56,13 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
-    outDir: 'dist',
+    outDir: 'build',
   },
   server: {
     port: 3000,
     host: 'localhost',
     open: true,
-    strictPort: false, // Allow fallback to next available port if 3000 is busy
+    strictPort: true, // Fail if 3000 is busy instead of switching
     // Proxy API requests to Laravel backend
     proxy: {
       '/api': {
