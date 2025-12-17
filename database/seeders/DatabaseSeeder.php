@@ -172,6 +172,9 @@ class DatabaseSeeder extends Seeder
         $stemDept->update(['total_teachers' => 1]);
         $curriculumDept->update(['total_teachers' => 2]); // Total from all sub-departments
 
+        // Seed Configurations
+        $this->call(ConfigurationSeeder::class);
+
         $this->command->info('Database seeded successfully!');
         $this->command->info('=== Login Credentials ===');
         $this->command->info('HR Admin: hr@ksis.edu.kw / password123');
