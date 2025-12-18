@@ -137,7 +137,9 @@ export function LoginScreen() {
         {/* Content */}
         <div className="relative z-20 flex flex-col justify-between w-full p-12 h-full">
           <div>
-            <h3 className="text-xl font-bold tracking-wider text-blue-200 uppercase">KSIS TEAPS</h3>
+            <h3 className="text-xl font-bold tracking-wider text-blue-200 uppercase font-sans">
+              Teacher Performance and Evaluation System
+            </h3>
           </div>
 
           <div className="space-y-6 max-w-lg">
