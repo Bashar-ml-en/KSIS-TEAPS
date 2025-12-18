@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, Bell, User, X, Settings, ChevronDown, Camera } from 'lucide-react';
 import notificationService, { Notification } from '../../services/notificationService';
+import { ModeToggle } from '../mode-toggle';
 
 interface HeaderProps {
   title?: string;
@@ -125,6 +126,7 @@ export function Header({ title, userName = 'User', userRole, onMenuClick, userPr
         </div>
 
         <div className="flex items-center gap-4">
+          <ModeToggle />
           {/* Notifications */}
           <div className="relative" ref={notificationDropdownRef}>
             <button
