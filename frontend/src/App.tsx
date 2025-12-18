@@ -20,6 +20,7 @@ import { KPIApproval } from './components/kpi/KPIApproval';
 import { ContractStatus } from './components/teacher/ContractStatus';
 import { Toaster } from './components/ui/sonner';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { User } from './services/api';
 
 export type View = 'principal' | 'teacher' | 'admin' | 'admin-dashboard' | 'admin-users' | 'admin-settings' | 'admin-contracts' |
@@ -158,7 +159,9 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <ErrorBoundary>
+        <AppContent />
+      </ErrorBoundary>
     </AuthProvider>
   );
 }
