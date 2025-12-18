@@ -21,7 +21,6 @@ import { ContractStatus } from './components/teacher/ContractStatus';
 import { Toaster } from './components/ui/sonner';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
-import { ThemeProvider } from './components/theme-provider';
 import { User } from './services/api';
 
 export type View = 'principal' | 'teacher' | 'admin' | 'admin-dashboard' | 'admin-users' | 'admin-settings' | 'admin-contracts' |
@@ -159,12 +158,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <AuthProvider>
-        <ErrorBoundary>
-          <AppContent />
-        </ErrorBoundary>
-      </AuthProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <ErrorBoundary>
+        <AppContent />
+      </ErrorBoundary>
+    </AuthProvider>
   );
 }
