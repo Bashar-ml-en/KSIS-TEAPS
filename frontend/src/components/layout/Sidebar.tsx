@@ -25,8 +25,6 @@ export function Sidebar({ role, currentView, onNavigate, onLogout, isOpen = true
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-
-
   // Helper to get items
   const getItems = () => {
     switch (role) {
@@ -73,26 +71,26 @@ export function Sidebar({ role, currentView, onNavigate, onLogout, isOpen = true
       {/* Mobile Overlay */}
       {isOpen && !isDesktop && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar - Fixed Position on Mobile, Static on Desktop */}
       <div
-        className={`fixed lg:static inset-y-0 left-0 z-50 flex flex-col w-64 bg-slate-900 border-r border-slate-800 transition-transform duration-300 ${isDesktop || isOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed lg:static inset-y-0 left-0 z-50 flex flex-col w-64 bg-slate-900 border-r border-slate-800 transition-transform duration-300 shadow-2xl ${isDesktop || isOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
       >
         <div className="flex flex-col h-full w-full">
           {/* Logo Header - Standard Size */}
-          <div className="p-6 border-b border-white/10 flex justify-between items-center bg-slate-900">
+          <div className="p-6 flex justify-between items-center bg-slate-900/95 backdrop-blur-xl border-b border-slate-800">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white rounded-lg p-1 flex items-center justify-center overflow-hidden">
-                <img src={logo} alt="KSIS Logo" className="w-full h-full object-contain" />
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg p-0.5 flex items-center justify-center overflow-hidden shadow-lg ring-1 ring-blue-500/20">
+                <img src={logo} alt="KSIS Logo" className="w-full h-full object-contain rounded-md bg-white" />
               </div>
-              <div>
-                <h2 className="text-white font-bold tracking-tight text-lg leading-none">KSIS</h2>
-                <p className="text-blue-400 text-xs font-medium tracking-wide">TEAPS System</p>
+              <div className="flex flex-col">
+                <h2 className="text-white font-bold tracking-tight text-lg leading-none font-sans">KSIS</h2>
+                <p className="text-blue-400 text-[10px] font-bold tracking-widest uppercase mt-1">TEAPS System</p>
               </div>
             </div>
 
@@ -105,7 +103,7 @@ export function Sidebar({ role, currentView, onNavigate, onLogout, isOpen = true
           </div>
 
           {/* Menu Items */}
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
             {items.map((item) => {
               const Icon = item.icon;
               const isActive = currentView === item.view;
@@ -117,26 +115,37 @@ export function Sidebar({ role, currentView, onNavigate, onLogout, isOpen = true
                     onNavigate(item.view as View);
                     onClose?.();
                   }}
-                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${isActive
-                    ? 'bg-blue-700 text-white'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  className={`relative group w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 ${isActive
+                    ? 'bg-blue-600/10 text-white'
+                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
                     }`}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span className="text-sm font-medium">{item.label}</span>
+                  {/* Active Indicator Line */}
+                  {isActive && (
+                    <div className="absolute left-0 top-3 bottom-3 w-1 bg-blue-500 rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+                  )}
+
+                  <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-blue-400' : 'text-slate-500 group-hover:text-blue-400'}`} />
+                  <span className={`text-sm font-medium tracking-wide ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>
+                    {item.label}
+                  </span>
+
+                  {isActive && (
+                    <ChevronRight className="w-4 h-4 ml-auto text-blue-500 opacity-50" />
+                  )}
                 </button>
               );
             })}
           </nav>
 
           {/* Footer Actions */}
-          <div className="p-4 border-t border-slate-800 bg-slate-900">
+          <div className="p-4 border-t border-slate-800 bg-slate-900/50">
             <button
               onClick={onLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-slate-800 rounded-lg transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-colors group"
             >
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">Logout</span>
+              <LogOut className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+              <span className="font-medium text-sm">Logout</span>
             </button>
           </div>
         </div>
