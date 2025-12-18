@@ -112,28 +112,26 @@ class FeedbackController extends Controller
     /**
      * Call Django NLP service for analysis
      */
+    /**
+     * Call Local Sentiment Service for analysis
+     */
     private function analyzeWithNLP(Feedback $feedback)
     {
-        $nlpUrl = env('NLP_SERVICE_URL', 'http://nlp:8000');
+        $sentimentService = new \App\Services\SentimentService();
+        $result = $sentimentService->analyze($feedback->feedback_text);
 
-        $response = Http::timeout(10)->post("{$nlpUrl}/api/analyze-feedback/", [
-            'text' => $feedback->feedback_text,
+        $feedback->update([
+            'sentiment_score' => $result['score'] ?? 0,
+            'sentiment_label' => $result['sentiment'] ?? 'neutral',
+            'keywords' => $result['keywords'] ?? [],
+            'topics' => $result['topics'] ?? [],
+            'entities' => $result['entities'] ?? [],
+            'is_analyzed' => true,
+            'analyzed_at' => now(),
         ]);
-
-        if ($response->successful()) {
-            $data = $response->json();
-
-            $feedback->update([
-                'sentiment_score' => $data['score'] ?? null,
-                'sentiment_label' => $data['sentiment'] ?? null,
-                'keywords' => $data['keywords'] ?? [],
-                'topics' => $data['topics'] ?? [],
-                'entities' => $data['entities'] ?? [],
-                'is_analyzed' => true,
-                'analyzed_at' => now(),
-            ]);
-        } else {
-            throw new \Exception('NLP service returned error: ' . $response->status());
-        }
+        
+        // Log the analysis for system auditing
+        // We can check if AuditService is bound or instantiate it if needed, 
+        // but for now this is internal logic.
     }
 }
