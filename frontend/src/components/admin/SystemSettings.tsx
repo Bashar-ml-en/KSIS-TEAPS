@@ -61,8 +61,9 @@ export function SystemSettings({ onNavigate, onLogout, userName, userRole }: Sys
     const loadSettings = async () => {
         try {
             setLoading(true);
-            // Load all configuration sections
-            const [systemConfig, emailConfig, notificationConfig, securityConfig, performanceConfig] = await Promise.allSettled([
+
+            // Promise.allSettled guarantees we proceed even if some fail
+            const results = await Promise.allSettled([
                 configService.getConfig('system'),
                 configService.getConfig('email'),
                 configService.getConfig('notifications'),
@@ -70,25 +71,23 @@ export function SystemSettings({ onNavigate, onLogout, userName, userRole }: Sys
                 configService.getConfig('performance'),
             ]);
 
-            // Update state with loaded configs
-            if (systemConfig.status === 'fulfilled' && systemConfig.value) {
-                setSettings(prev => ({ ...prev, system: systemConfig.value.value }));
-            }
-            if (emailConfig.status === 'fulfilled' && emailConfig.value) {
-                setSettings(prev => ({ ...prev, email: emailConfig.value.value }));
-            }
-            if (notificationConfig.status === 'fulfilled' && notificationConfig.value) {
-                setSettings(prev => ({ ...prev, notifications: notificationConfig.value.value }));
-            }
-            if (securityConfig.status === 'fulfilled' && securityConfig.value) {
-                setSettings(prev => ({ ...prev, security: securityConfig.value.value }));
-            }
-            if (performanceConfig.status === 'fulfilled' && performanceConfig.value) {
-                setSettings(prev => ({ ...prev, performance: performanceConfig.value.value }));
-            }
+            const [system, email, notif, sec, perf] = results;
+
+            // Helper to extract value safely
+            const getValue = (res: any) => (res.status === 'fulfilled' && res.value?.value) ? res.value.value : null;
+
+            setSettings(prev => ({
+                ...prev,
+                system: { ...prev.system, ...getValue(system) },
+                email: { ...prev.email, ...getValue(email) },
+                notifications: { ...prev.notifications, ...getValue(notif) },
+                security: { ...prev.security, ...getValue(sec) },
+                performance: { ...prev.performance, ...getValue(perf) },
+            }));
+
         } catch (error: any) {
             console.error('Failed to load settings:', error);
-            toast.info('Using default settings');
+            // Don't toast error on load, just use defaults
         } finally {
             setLoading(false);
         }

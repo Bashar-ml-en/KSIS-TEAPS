@@ -75,11 +75,15 @@ export function ContractManagement({ onNavigate, onLogout, userName, userRole }:
                 api.get('/teachers')
             ]);
 
-            setContracts(contractsRes.data.data || contractsRes.data);
-            setTeachers(teachersRes.data.data || teachersRes.data);
+            const contractsData = contractsRes.data.data || contractsRes.data;
+            const teachersData = teachersRes.data.data || teachersRes.data;
+
+            setContracts(Array.isArray(contractsData) ? contractsData : []);
+            setTeachers(Array.isArray(teachersData) ? teachersData : []);
         } catch (error: any) {
             console.error('Failed to load data:', error);
-            toast.error('Failed to load contracts data');
+            // toast.error('Failed to load contracts data'); 
+            setContracts([]); // Ensure it's empty on error
         } finally {
             setLoading(false);
         }

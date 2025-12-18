@@ -24,6 +24,75 @@ interface AdminDashboardProps {
   userName?: string;
 }
 
+interface QuickAddUserFormProps {
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+function QuickAddUserForm({ onClose, onSuccess }: QuickAddUserFormProps) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('teacher');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!name || !email) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await api.post('/users', {
+        name,
+        email,
+        role,
+        password: 'password123', // Default password
+        password_confirmation: 'password123'
+      });
+      toast.success('User created successfully');
+      onSuccess();
+    } catch (error: any) {
+      console.error('Failed to create user:', error);
+      toast.error(error.response?.data?.message || 'Failed to create user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4 py-4">
+      <div className="space-y-2">
+        <Label htmlFor="name">Full Name</Label>
+        <Input id="name" value={name} onChange={e => setName(e.target.value)} placeholder="John Doe" />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="john@ksis.edu" />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="role">Role</Label>
+        <Select value={role} onValueChange={setRole}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="teacher">Teacher</SelectItem>
+            <SelectItem value="principal">Principal</SelectItem>
+            <SelectItem value="hr_admin">HR Admin</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex justify-end gap-2 pt-4">
+        <Button variant="outline" onClick={onClose} disabled={loading}>Cancel</Button>
+        <Button onClick={handleSubmit} disabled={loading} className="bg-blue-600 hover:bg-blue-700">
+          {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Creating...</> : 'Create User'}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function AdminDashboard({ onNavigate, onLogout, userName: propUserName }: AdminDashboardProps) {
   const { user, refreshUser } = useAuth();
   const userName = user?.name || propUserName || 'Admin User';
@@ -49,7 +118,7 @@ export function AdminDashboard({ onNavigate, onLogout, userName: propUserName }:
       setNotifications(Array.isArray(notifData) ? notifData : []);
     } catch (error) {
       console.error('Failed to load admin dashboard data', error);
-      toast.error('Failed to load dashboard data');
+      // toast.error('Failed to load dashboard data');
     } finally {
       setIsLoading(false);
     }
@@ -68,10 +137,6 @@ export function AdminDashboard({ onNavigate, onLogout, userName: propUserName }:
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* Sidebar is handled by the layout wrapper in most apps, but here it seems nested? 
-          The Sidebar component we just fixed handles its own positioning on mobile/desktop. 
-          We just need to place it here.
-      */}
       <Sidebar
         role="admin"
         currentView="admin-dashboard"
@@ -83,7 +148,6 @@ export function AdminDashboard({ onNavigate, onLogout, userName: propUserName }:
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Header
-          title="Admin Dashboard"
           userName={userName}
           userRole="admin"
           userProfileImage={user?.profile_photo_url}
@@ -174,34 +238,19 @@ export function AdminDashboard({ onNavigate, onLogout, userName: propUserName }:
                             Add User
                           </Button>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="sm:max-w-[425px]">
                           <DialogHeader>
-                            <DialogTitle>Add New User</DialogTitle>
+                            <DialogTitle>Quick Add User</DialogTitle>
                             <DialogDescription>
-                              Create a new user account for the evaluation system.
+                              Create a new user instantly. Default password: 'password123'.
                             </DialogDescription>
                           </DialogHeader>
-                          <div className="space-y-4 pt-4">
-                            <p className="text-sm text-gray-600">Please visit the User Management page to add users with full details.</p>
-                            <div className="flex gap-2 pt-4">
-                              <Button
-                                className="flex-1 bg-blue-600 hover:bg-blue-700"
-                                onClick={() => {
-                                  setIsAddUserOpen(false);
-                                  onNavigate('admin-users');
-                                }}
-                              >
-                                Go to User Management
-                              </Button>
-                              <Button
-                                variant="outline"
-                                className="flex-1"
-                                onClick={() => setIsAddUserOpen(false)}
-                              >
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
+
+                          <QuickAddUserForm onClose={() => setIsAddUserOpen(false)} onSuccess={() => {
+                            setIsAddUserOpen(false);
+                            loadData(); // Refresh stats
+                          }} />
+
                         </DialogContent>
                       </Dialog>
                     </div>
@@ -232,7 +281,7 @@ export function AdminDashboard({ onNavigate, onLogout, userName: propUserName }:
                           </Button>
                         </div>
                       ))}
-                      {stats?.recent_users.length === 0 && (
+                      {(!stats?.recent_users || stats.recent_users.length === 0) && (
                         <p className="text-gray-500 text-center py-6 border-dashed border-2 border-gray-100 rounded-lg">No recently active users</p>
                       )}
                     </div>
